@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/01-introduction.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/02-colab-and-data-access.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/03-what-is-a-jet.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/04-finding-the-truth-labels.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/05-preparing-the-data.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/06-building-mini-part.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/07-training-the-model.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/08-evaluating-the-model.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/09-complete-code.html</loc>
+  </url>
+  <url>
     <loc>https://cms-opendata-workshop.github.io/workbench-template-md/404.html</loc>
   </url>
   <url>
@@ -17,6 +44,33 @@
   </url>
   <url>
     <loc>https://cms-opendata-workshop.github.io/workbench-template-md/index.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/01-introduction.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/02-colab-and-data-access.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/03-what-is-a-jet.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/04-finding-the-truth-labels.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/05-preparing-the-data.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/06-building-mini-part.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/07-training-the-model.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/08-evaluating-the-model.html</loc>
+  </url>
+  <url>
+    <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/09-complete-code.html</loc>
   </url>
   <url>
     <loc>https://cms-opendata-workshop.github.io/workbench-template-md/instructor/404.html</loc>

@@ -2,53 +2,61 @@
 title: Setup
 ---
 
-FIXME: Setup instructions live in this document. Please specify the tools and
-the data sets the Learner needs to have installed.
+This lesson runs entirely in [Google Colab](https://colab.research.google.com/).
+There is nothing to install on your own computer, and no dataset to
+download before you begin. All CMS Open Data files this lesson uses are
+streamed directly from CERN's servers while your Colab notebook is
+running.
 
-## Data Sets
+## What you need
 
-<!--
-FIXME: place any data you want learners to use in `episodes/data` and then use
-       a relative link ( [data zip file](data/lesson-data.zip) ) to provide a
-       link to it, replacing the example.com link.
--->
-Download the [data zip file](https://example.com/FIXME) and unzip it to your Desktop
+- A Google account, to open and run notebooks in Google Colab.
+- A web browser.
+- Nothing else. No local Python installation, no virtual environment, and
+  no downloaded data files are required.
 
-## Software Setup
+## Opening a Colab notebook
 
-::::::::::::::::::::::::::::::::::::::: discussion
+Go to [colab.research.google.com](https://colab.research.google.com/) and
+sign in with your Google account, then choose "New notebook." Everything
+in this lesson can be typed or pasted into cells in that notebook, in the
+order the episodes present it.
 
-### Details
+## Installing the packages this lesson needs
 
-Setup for different systems can be presented in dropdown menus via a `spoiler`
-tag. They will join to this discussion block, so you can give a general overview
-of the software used in this lesson here and fill out the individual operating
-systems (and potentially add more, e.g. online setup) in the solutions blocks.
+Colab already has several common data science packages installed,
+including `numpy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn`, and
+`torch`. It does not have `uproot`, `fsspec-xrootd`, `awkward`, or
+`vector`, which this lesson uses to read CMS data files. Run this in the
+first cell of your Colab notebook, before anything else in this lesson:
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::
+```python
+!pip install uproot fsspec-xrootd awkward vector numpy torch scikit-learn matplotlib seaborn pandas
+```
 
-:::::::::::::::: spoiler
+Full details on why these specific packages are needed, and how the rest
+of this lesson reads CMS data without downloading it, are covered in
+[Working in Google Colab](../episodes/02-colab-and-data-access.md), the
+second episode of this lesson. Start there once your notebook is open and
+the install command above has finished running.
 
-### Windows
+## No data download required
 
-Use PuTTY
+This lesson uses three CMS Open Data files (described in full in
+[Working in Google Colab](../episodes/02-colab-and-data-access.md)). None
+of them need to be downloaded. Instead, this lesson reads them directly
+from CERN's `eospublic.cern.ch` server using `uproot`, over a network
+protocol called xrootd, which streams only the parts of a file that are
+actually needed rather than requiring the whole file to sit on disk. This
+keeps the lesson well within Colab's storage limits and means the exact
+same code works whether you are running this lesson today or next year,
+without maintaining a local copy of any dataset.
 
-::::::::::::::::::::::::
-
-:::::::::::::::: spoiler
-
-### MacOS
-
-Use Terminal.app
-
-::::::::::::::::::::::::
-
-
-:::::::::::::::: spoiler
-
-### Linux
-
-Use Terminal
-
-::::::::::::::::::::::::
-
+::: callout
+If you would rather work locally instead of in Colab, everything in this
+lesson still works in a local Jupyter notebook or plain Python script.
+Replace the `!pip install ...` command above with the same command
+without the leading `!`, run in a terminal, and the same streaming file
+paths from [Working in Google Colab](../episodes/02-colab-and-data-access.md)
+will work identically outside of Colab.
+:::

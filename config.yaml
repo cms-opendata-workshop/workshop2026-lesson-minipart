@@ -15,13 +15,13 @@ carpentry: 'incubator'
 varnish: 'cms-opendata-workshop/varnish'
 
 # Overall title for pages.
-title: 'Lesson Title' # FIXME
+title: 'Building a Simplified Particle Transformer for CMS Jet Classification' # FIXME
 
 # Date the lesson was created (YYYY-MM-DD, this is empty by default)
-created: ~ # FIXME
+created: 2026-07-08 # FIXME
 
 # Comma-separated list of keywords for the lesson
-keywords: 'software, data, lesson, CMS' # FIXME
+keywords: 'machine learning, transformers, CMS, jet classification, particle physics, open data, Google Colab' # FIXME
 
 # Life cycle stage of the lesson
 # possible values: pre-alpha, alpha, beta, stable
@@ -63,7 +63,15 @@ contact: 'cms-dpoa-coordinator@cern.ch' # FIXME
 
 # Order of episodes in your lesson
 episodes: 
-- introduction.md
+- 01-introduction.md
+- 02-colab-and-data-access.md
+- 03-what-is-a-jet.md
+- 04-finding-the-truth-labels.md
+- 05-preparing-the-data.md
+- 06-building-mini-part.md
+- 07-training-the-model.md
+- 08-evaluating-the-model.md
+- 09-complete-code.md
 
 # Information for Learners
 learners: 

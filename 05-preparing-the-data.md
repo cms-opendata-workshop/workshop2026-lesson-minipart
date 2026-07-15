@@ -20,10 +20,59 @@ exercises: 10
 - Convert NumPy arrays into PyTorch tensors and batches using `TensorDataset` and `DataLoader`.
 ::::::
 
-Once the `extract_features()` function from the [previous episode](04-finding-the-truth-labels.md)
-has turned all three files into arrays of jet pairs and labels, three
-things still need to happen before we can hand this to a neural network,
-all in the code built in this episode below.
+## Run this first
+
+Run this cell first, then read on to see what each part does.
+
+```python
+# Extract features (adjust max_events to None when ready for full training)
+X_bb, y_bb = extract_features(TTHTOBB_PATH, label=0, is_signal=True, max_events=50000)
+X_cc, y_cc = extract_features(TTHTOCC_PATH, label=1, is_signal=True, max_events=50000)
+X_qcd, y_qcd = extract_features(QCD_BCTOE_PATH, label=2, is_signal=False, max_events=50000)
+
+# Combine datasets
+X = np.concatenate([X_bb, X_cc, X_qcd], axis=0)
+y = np.concatenate([y_bb, y_cc, y_qcd], axis=0)
+
+# Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+# Normalize features (Transformers are sensitive to scale)
+# We flatten to (N*2, Features) to fit the scaler, then reshape back
+scaler = StandardScaler()
+X_train_flat = X_train.reshape(-1, len(FEATURE_NAMES))
+X_test_flat = X_test.reshape(-1, len(FEATURE_NAMES))
+
+X_train_scaled = scaler.fit_transform(X_train_flat).reshape(-1, 2, len(FEATURE_NAMES))
+X_test_scaled = scaler.transform(X_test_flat).reshape(-1, 2, len(FEATURE_NAMES))
+
+# Convert to PyTorch tensors
+train_data = TensorDataset(torch.tensor(X_train_scaled, dtype=torch.float32), torch.tensor(y_train, dtype=torch.long))
+test_data = TensorDataset(torch.tensor(X_test_scaled, dtype=torch.float32), torch.tensor(y_test, dtype=torch.long))
+
+train_loader = DataLoader(train_data, batch_size=256, shuffle=True)
+test_loader = DataLoader(test_data, batch_size=256, shuffle=False)
+```
+
+```output
+Loaded label 0: 36025 events
+Loaded label 1: 37295 events
+Loaded label 2: 50000 events
+```
+
+`TTHTOBB_PATH`, `TTHTOCC_PATH`, and `QCD_BCTOE_PATH` are the three
+streaming URLs saved in [Working in Google Colab](02-colab-and-data-access.md).
+`extract_features()` is the function you already ran in
+[Finding the Truth Labels](04-finding-the-truth-labels.md); it reads its
+`filepath` argument the same way whether it's a local path or a `root://`
+streaming URL. The exact counts above will vary slightly depending on the
+files read, but stay in the same ballpark as the roughly 36,000 Hbb /
+37,000 Hcc / 50,000 QCD split reflected in the test-set totals used
+throughout [Evaluating the Model](08-evaluating-the-model.md).
+
+Once `extract_features()` has turned all three files into arrays of jet
+pairs and labels, three things still need to happen before we can hand
+this to a neural network - all in the code you just ran above.
 
 ## Step 1 - Combine everything into one big pile
 
@@ -141,46 +190,6 @@ A: No error - `fit_transform` is valid on its own, so the code would run. The pr
 - Scale every feature to the same "average 0, spread 1" footing, fitting the scaler only on training data.
 - Convert to PyTorch tensors and feed the model small shuffled batches at a time, not the whole dataset at once.
 - Next: [Building MiniParT](06-building-mini-part.md) - building the model itself.
-
-## Full code for this lesson
-
-Copy this into your own Jupyter notebook cell(s), in order, as you go.
-
-```python
-# Extract features (adjust max_events to None when ready for full training)
-X_bb, y_bb = extract_features(TTHTOBB_PATH, label=0, is_signal=True, max_events=50000)
-X_cc, y_cc = extract_features(TTHTOCC_PATH, label=1, is_signal=True, max_events=50000)
-X_qcd, y_qcd = extract_features(QCD_BCTOE_PATH, label=2, is_signal=False, max_events=50000)
-
-# Combine datasets
-X = np.concatenate([X_bb, X_cc, X_qcd], axis=0)
-y = np.concatenate([y_bb, y_cc, y_qcd], axis=0)
-
-# Train/Test Split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-
-# Normalize features (Transformers are sensitive to scale)
-# We flatten to (N*2, Features) to fit the scaler, then reshape back
-scaler = StandardScaler()
-X_train_flat = X_train.reshape(-1, len(FEATURE_NAMES))
-X_test_flat = X_test.reshape(-1, len(FEATURE_NAMES))
-
-X_train_scaled = scaler.fit_transform(X_train_flat).reshape(-1, 2, len(FEATURE_NAMES))
-X_test_scaled = scaler.transform(X_test_flat).reshape(-1, 2, len(FEATURE_NAMES))
-
-# Convert to PyTorch tensors
-train_data = TensorDataset(torch.tensor(X_train_scaled, dtype=torch.float32), torch.tensor(y_train, dtype=torch.long))
-test_data = TensorDataset(torch.tensor(X_test_scaled, dtype=torch.float32), torch.tensor(y_test, dtype=torch.long))
-
-train_loader = DataLoader(train_data, batch_size=256, shuffle=True)
-test_loader = DataLoader(test_data, batch_size=256, shuffle=False)
-```
-
-`TTHTOBB_PATH`, `TTHTOCC_PATH`, and `QCD_BCTOE_PATH` are the three
-streaming URLs saved in [Working in Google Colab](02-colab-and-data-access.md).
-`extract_features()` reads its `filepath` argument the same way whether
-it's a local path or a `root://` streaming URL, so no other part of this
-code block needs to change.
 
 :::::: keypoints
 - Combine all three datasets, then split 80/20 into train/test, keeping the class proportions equal on both sides with `stratify`.

@@ -21,7 +21,10 @@ exercises: 5
 ## The question we're trying to answer
 
 Deep inside the CMS detector at CERN, protons collide at nearly the speed
-of light. Occasionally, a collision briefly creates a **Higgs boson** - a
+of light. (For background on the detector itself - its layers, subsystems,
+and how it records a collision - see the CMS Open Data Workshop's
+[detector lesson](https://cms-opendata-workshop.github.io/workshop2024-lesson-cms-detector/instructor/index.html);
+this lesson picks up from there.) Occasionally, a collision briefly creates a **Higgs boson** - a
 heavy, short-lived particle that almost instantly decays into other
 particles. We care about three outcomes:
 
@@ -102,19 +105,19 @@ After that, the lesson builds MiniParT from scratch, step by step:
 7. [**Evaluating the Model**](08-evaluating-the-model.md) - did it work, and how do we know?
 8. [**The Complete Code**](09-complete-code.md) - every piece, assembled in one place
 
-Each of episodes 2 through 8 follows the same shape. The prose in the
-body of the episode is where the actual teaching happens: it walks
-through the *reasoning* behind each piece of code, one small idea at a
-time - why a feature is included, what a line of PyTorch is really
-doing, why a step needs to happen before another one. Then, at the very
-end of every episode, a **"Full code for this lesson"** section collects
-that episode's code into one or two plain cells, with no further
-explanation - just the building blocks themselves, ready to run.
+Each of episodes 2 through 8 follows the same shape: **it opens with the
+complete code for that episode, ready to run in one go**, followed by a
+line inviting you to read on. Copy that opening block into a new cell,
+run it, and *then* read the prose that follows - that's where the actual
+teaching happens, walking back through the code you just ran one small
+idea at a time: why a feature is included, what a line of PyTorch is
+really doing, why a step needs to happen before another one. Where a
+code block produces visible output (a print statement, a shape, a plot),
+a block right underneath it shows what you should see.
 
-These "Full code" blocks are cumulative: each one assumes every earlier
-episode's "Full code" block is already sitting in your Colab notebook,
-run in order. Copy each episode's block into a new cell as you reach it,
-run it, and by the end of episode 7 your notebook *is* a trained MiniParT
+These opening code blocks are cumulative: each one assumes every earlier
+episode's opening block is already sitting in your Colab notebook, run in
+order. By the end of episode 7 your notebook *is* a trained MiniParT
 model, built up one episode at a time. Episode 9 then reprints the whole
 pipeline as a single reference, for whenever you want to see it all
 without the surrounding explanation.
@@ -122,36 +125,52 @@ without the surrounding explanation.
 ## How we'll judge whether it worked
 
 Later in this lesson, in [Evaluating the Model](08-evaluating-the-model.md),
-we check whether MiniParT actually learned something useful. That episode
-leans on a few tools worth understanding now, before you meet them there.
+we check whether MiniParT actually learned something useful, using three
+tools covered there in full: a confusion matrix, ROC curves with AUC, and
+comparing the model's internal representations with cosine similarity.
+Here's a short preview of the first two, using illustrative data, so
+you recognize them when you meet them for real.
 
-**Confusion matrix.** A single accuracy percentage hides *which* classes
-get confused with which. It's a grid: rows are the true class, columns
-are the model's guess. A perfect model has large numbers only on the
-diagonal; large numbers off the diagonal show exactly which two classes
-get mixed up.
+**Confusion matrix**, in brief: a grid where rows are the true class and
+columns are the model's guess, so a perfect model has large numbers only
+on the diagonal.
 
-**ROC curve and AUC.** The model also hands back a confidence score per
-class, not just a final answer. A ROC curve plots the tradeoff between
-catching more real signal and letting more background through, as that
-confidence threshold slides from strict to loose. **AUC** boils the
-whole curve into one number from 0 to 1: close to 1.0 means the model
-cleanly separates that class from everything else; close to 0.5 means
-it's barely better than a coin flip.
+![Example confusion matrix for a 3-class problem.](fig/confusion-matrix-example.png)
 
-**Dot product / cosine similarity.** Internally, the model never deals
-in words like "Hbb" or "background" - it represents every event purely
-as a vector, a list of 64 numbers, and that's the language it actually
-"thinks" in. Comparing two of these vectors with cosine similarity tells
-us how similar their *direction* is, ignoring length: close to 1 means
-pointing the same way, close to -1 means opposite ways, close to 0 means
-unrelated directions. Because that's the model's native representation,
-this comparison gives real insight into how it separates the three
-classes internally - independent of its final guess. MiniParT is never
-explicitly told "Hbb and Hcc should point in similar directions"; it's
-only graded on its final guess, so this internal geometry doesn't have
-to match human intuition, and later in this lesson you'll see a case
-where it doesn't.
+This example shows good overall performance - most events land on the
+diagonal - but look closely and there's visible confusion between two of
+the three classes (a handful of events leak each way between them),
+while the third class is separated from both almost perfectly. That
+exact pattern, two classes that are hard to tell apart plus a third that
+isn't, is the situation this lesson's Hbb/Hcc/QCD problem is actually in.
+
+Generated with the same sklearn/seaborn/matplotlib code shown later in
+this lesson, using illustrative data - not this lesson's actual results.
+
+**ROC curve and AUC**, in brief: a curve tracing the tradeoff between
+catching more real signal and letting more background through, as the
+model's confidence threshold slides from strict to loose; **AUC**
+condenses that whole curve into one number from 0 to 1.
+
+![Example ROC curve.](fig/roc-curve-example.png)
+
+A curve that hugs the top-left corner, away from the diagonal, is what
+strong separation looks like - catching signal while letting almost no
+background through. AUC boils that shape down to a single number: close
+to 1.0 means close to that corner, close to 0.5 means close to the
+diagonal, no better than a coin flip. The AUC near 1 shown here is
+illustrative, not this lesson's actual number.
+
+Generated with the same sklearn/seaborn/matplotlib code shown later in
+this lesson, using illustrative data - not this lesson's actual results.
+
+**Dot product / cosine similarity**, in brief: the model represents every
+event internally as a vector of 64 numbers, and cosine similarity
+compares two such vectors by direction alone, ignoring length - close to
+1 means pointing the same way, close to -1 means opposite, close to 0
+means unrelated. [Evaluating the Model](08-evaluating-the-model.md) uses
+this to sanity-check what the model learned internally, independent of
+its final guess.
 
 ::::::::::::::::::::::::::::::::::::: challenge
 

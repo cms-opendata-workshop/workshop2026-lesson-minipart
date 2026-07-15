@@ -18,11 +18,69 @@ exercises: 10
 - Explain why training accuracy alone cannot tell you whether the model generalizes.
 ::::::
 
+## Run this first
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = model.to(device)
+
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
+
+epochs = 10
+
+for epoch in range(epochs):
+    model.train()
+    total_loss = 0
+    correct = 0
+    total = 0
+    
+    for batch_x, batch_y in train_loader:
+        batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+        
+        optimizer.zero_grad()
+        outputs = model(batch_x)
+        loss = criterion(outputs, batch_y)
+        
+        loss.backward()
+        optimizer.step()
+        
+        total_loss += loss.item()
+        _, predicted = outputs.max(1)
+        total += batch_y.size(0)
+        correct += predicted.eq(batch_y).sum().item()
+        
+    train_acc = 100. * correct / total
+    print(f"Epoch {epoch+1}/{epochs} | Loss: {total_loss/len(train_loader):.4f} | Train Acc: {train_acc:.2f}%")
+```
+
+```output
+Epoch 1/10 | Loss: 0.6823 | Train Acc: 65.98%
+Epoch 2/10 | Loss: 0.6512 | Train Acc: 67.42%
+Epoch 3/10 | Loss: 0.6301 | Train Acc: 68.55%
+Epoch 4/10 | Loss: 0.6147 | Train Acc: 69.31%
+Epoch 5/10 | Loss: 0.6029 | Train Acc: 69.98%
+Epoch 6/10 | Loss: 0.5934 | Train Acc: 70.52%
+Epoch 7/10 | Loss: 0.5856 | Train Acc: 70.94%
+Epoch 8/10 | Loss: 0.5790 | Train Acc: 71.28%
+Epoch 9/10 | Loss: 0.5734 | Train Acc: 71.58%
+Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%
+```
+
+These exact numbers are illustrative - your own run will vary slightly -
+but they land in the same range as the roughly 0.68 → 0.56 loss and
+roughly 66% → 72% training accuracy trend used throughout this lesson,
+including in [Evaluating the Model](08-evaluating-the-model.md).
+
+---
+*Run the block above first, then read on to see what each part does.*
+
 The model from [Building MiniParT](06-building-mini-part.md) starts out
 knowing nothing - its weights are randomly initialized. Training is the
 repeated process of showing it examples, checking how wrong its guesses
-are, and nudging its weights to be a little less wrong next time. This is
-what the code built in this episode below does.
+are, and nudging its weights to be a little less wrong next time - which
+is exactly what the code above just did. The rest of this episode walks
+back through it piece by piece.
 
 ## Setup
 
@@ -72,7 +130,15 @@ for epoch in range(epochs):
 ```
 
 One **epoch** is one full pass through every batch in the training set;
-we do 10 (`epochs = 10`). For every batch of 256 jet pairs:
+we do 10 (`epochs = 10`). A single pass isn't enough - the weights only
+move a small amount with each nudge, so the model needs to see the
+training data multiple times, nudging its weights a little further each
+time, before it settles into a genuinely useful set of weights. As it
+trains, watch the printed loss: it should generally trend downward epoch
+over epoch - that's the sign the model is actually learning something,
+rather than stuck or diverging.
+
+For every batch of 256 jet pairs:
 
 1. **`model.train()`** - tells the model we're training, switching on
    dropout (see [Building MiniParT](06-building-mini-part.md)).
@@ -136,44 +202,6 @@ A: No error would be raised. Without `optimizer.zero_grad()`, the gradient infor
 - Each batch: clear old gradients → forward pass → compute loss → backpropagate → update weights.
 - One full pass through all batches is an epoch; we repeat for several epochs so the model keeps improving.
 - Training accuracy is a useful sanity check, but not a fair test - see [Evaluating the Model](08-evaluating-the-model.md) for that.
-
-## Full code for this lesson
-
-Copy this into your own Jupyter notebook cell(s), in order, as you go.
-
-```python
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = model.to(device)
-
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
-
-epochs = 10
-
-for epoch in range(epochs):
-    model.train()
-    total_loss = 0
-    correct = 0
-    total = 0
-    
-    for batch_x, batch_y in train_loader:
-        batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-        
-        optimizer.zero_grad()
-        outputs = model(batch_x)
-        loss = criterion(outputs, batch_y)
-        
-        loss.backward()
-        optimizer.step()
-        
-        total_loss += loss.item()
-        _, predicted = outputs.max(1)
-        total += batch_y.size(0)
-        correct += predicted.eq(batch_y).sum().item()
-        
-    train_acc = 100. * correct / total
-    print(f"Epoch {epoch+1}/{epochs} | Loss: {total_loss/len(train_loader):.4f} | Train Acc: {train_acc:.2f}%")
-```
 
 :::::: keypoints
 - `CrossEntropyLoss` grades how wrong the model's guesses are; `AdamW` decides how to adjust the model's weights in response.

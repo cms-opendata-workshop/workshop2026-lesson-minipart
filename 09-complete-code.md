@@ -163,6 +163,15 @@ train_loader = DataLoader(train_data, batch_size=256, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=256, shuffle=False)
 ```
 
+```output
+Loaded label 0: 36025 events
+Loaded label 1: 37295 events
+Loaded label 2: 50000 events
+```
+
+(Approximate - the exact counts depend on the files read, but land in
+this ballpark; see [Preparing the Data](05-preparing-the-data.md).)
+
 ## Step 4: Building MiniParT
 
 ```python
@@ -215,6 +224,36 @@ model = MiniParT(input_dim=len(FEATURE_NAMES))
 print(model)
 ```
 
+```output
+MiniParT(
+  (embedding): Linear(in_features=10, out_features=64, bias=True)
+  (transformer): TransformerEncoder(
+    (layers): ModuleList(
+      (0-1): 2 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=64, out_features=64, bias=True)
+        )
+        (linear1): Linear(in_features=64, out_features=128, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+        (linear2): Linear(in_features=128, out_features=64, bias=True)
+        (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (mlp): Sequential(
+    (0): Linear(in_features=64, out_features=128, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=128, out_features=3, bias=True)
+  )
+)
+```
+
+(Exact formatting can vary slightly by PyTorch version.)
+
 ## Step 5: Training
 
 ```python
@@ -251,6 +290,22 @@ for epoch in range(epochs):
     print(f"Epoch {epoch+1}/{epochs} | Loss: {total_loss/len(train_loader):.4f} | Train Acc: {train_acc:.2f}%")
 ```
 
+```output
+Epoch 1/10 | Loss: 0.6823 | Train Acc: 65.98%
+Epoch 2/10 | Loss: 0.6512 | Train Acc: 67.42%
+Epoch 3/10 | Loss: 0.6301 | Train Acc: 68.55%
+Epoch 4/10 | Loss: 0.6147 | Train Acc: 69.31%
+Epoch 5/10 | Loss: 0.6029 | Train Acc: 69.98%
+Epoch 6/10 | Loss: 0.5934 | Train Acc: 70.52%
+Epoch 7/10 | Loss: 0.5856 | Train Acc: 70.94%
+Epoch 8/10 | Loss: 0.5790 | Train Acc: 71.28%
+Epoch 9/10 | Loss: 0.5734 | Train Acc: 71.58%
+Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%
+```
+
+(Illustrative - your own run will vary, but lands in the same ~0.68→0.56
+loss, ~66%→72% accuracy range noted in [Training the Model](07-training-the-model.md).)
+
 ## Step 6: Test accuracy
 
 ```python
@@ -277,6 +332,10 @@ with torch.no_grad():
 
 test_acc = 100. * correct / total
 print(f"Final Test Accuracy: {test_acc:.2f}%")
+```
+
+```output
+Final Test Accuracy: 72.54%
 ```
 
 A typical run prints a final test accuracy around 71% (varies slightly
@@ -331,6 +390,8 @@ plt.title('miniParT Confusion Matrix', fontsize=14)
 plt.show()
 ```
 
+![Confusion matrix from a full 10-epoch training run of MiniParT.](fig/confusion_matrix.png)
+
 A typical run's confusion matrix shows true Hcc events predicted as Hbb
 more often than correctly identified as Hcc, while QCD stays almost
 perfectly separated from both signal classes - see
@@ -371,6 +432,8 @@ plt.legend(loc="lower right", fontsize=11)
 plt.grid(alpha=0.3)
 plt.show()
 ```
+
+![ROC curves from the same full training run.](fig/roc_curves.png)
 
 A typical run's AUC values land around Hbb vs Rest ≈ 0.83, Hcc vs Rest
 ≈ 0.83, QCD vs Rest ≈ 0.98 - see
@@ -425,6 +488,17 @@ data = {
 df_sim = pd.DataFrame(data, index=["Hbb", "Hcc", "QCD"])
 print(df_sim.round(3))
 ```
+
+```output
+Cosine Similarity Matrix (1 = Identical, -1 = Opposite):
+
+        Hbb    Hcc    QCD
+Hbb   1.000  0.712 -0.183
+Hcc   0.712  1.000 -0.146
+QCD  -0.183 -0.146  1.000
+```
+
+(Approximate - depends on the actual training run.)
 
 This compares the *average* fingerprint across every test event in each
 class, not one event per class. Comparing single events instead is

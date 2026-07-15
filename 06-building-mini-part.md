@@ -20,9 +20,99 @@ exercises: 15
 - Trace the shape of a batch of data through every layer of the forward pass.
 ::::::
 
-This is the heart of the project: `class MiniParT`, which you'll build in
-this episode piece by piece. Nothing here is magic - every line is one of
-a handful of building blocks stacked together.
+## Run this first
+
+```python
+class MiniParT(nn.Module):
+    def __init__(self, input_dim, embed_dim=64, num_heads=4, hidden_dim=128, num_classes=3):
+        super(MiniParT, self).__init__()
+        
+        # 1. Linear projection (Embedding)
+        self.embedding = nn.Linear(input_dim, embed_dim)
+        
+        # 2. Transformer Encoder Layer (Self-Attention)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=embed_dim, 
+            nhead=num_heads, 
+            dim_feedforward=hidden_dim, 
+            batch_first=True,
+            dropout=0.1
+        )
+        # Using just 2 layers for a "mini" model to keep local training fast
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        
+        # 3. Classification Head
+        self.mlp = nn.Sequential(
+            nn.Linear(embed_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, num_classes)
+        )
+
+    def forward(self, x):
+        # x shape: (Batch, Seq_Len=2, Features)
+        
+        # Project features
+        x = self.embedding(x) # shape: (Batch, 2, embed_dim)
+        
+        # Apply self-attention
+        x = self.transformer(x) # shape: (Batch, 2, embed_dim)
+        
+        # Mean pooling over the sequence (the 2 jets)
+        x_pooled = x.mean(dim=1) # shape: (Batch, embed_dim)
+        
+        # Classify
+        out = self.mlp(x_pooled) # shape: (Batch, num_classes)
+        return out
+
+torch.manual_seed(42)
+np.random.seed(42)
+
+model = MiniParT(input_dim=len(FEATURE_NAMES))
+print(model)
+```
+
+```output
+MiniParT(
+  (embedding): Linear(in_features=10, out_features=64, bias=True)
+  (transformer): TransformerEncoder(
+    (layers): ModuleList(
+      (0-1): 2 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=64, out_features=64, bias=True)
+        )
+        (linear1): Linear(in_features=64, out_features=128, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+        (linear2): Linear(in_features=128, out_features=64, bias=True)
+        (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (mlp): Sequential(
+    (0): Linear(in_features=64, out_features=128, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=128, out_features=3, bias=True)
+  )
+)
+```
+
+(Exact formatting of the printed module tree can vary slightly by
+PyTorch version, but the layers and shapes will match.) Instantiating
+`MiniParT` and calling `print(model)` prints a summary of every layer
+defined in the class, in order - a useful sanity check that the
+architecture you're about to read about below is the architecture
+PyTorch actually built.
+
+---
+*Run the block above first, then read on to see what each part does.*
+
+This is the heart of the project: `class MiniParT`, defined above.
+Nothing here is magic - every line is one of a handful of building
+blocks stacked together, walked through piece by piece below.
 
 ```python
 class MiniParT(nn.Module):
@@ -40,7 +130,11 @@ to numbers the model learns on its own):
 
 ## Fixing the random seed, before building anything
 
-Before defining any of the pieces below, fix the random seed:
+Conceptually, before thinking about any of the pieces below, fix the
+random seed. In the code above this line sits right before `model =
+MiniParT(...)`, since defining the class itself consumes no randomness -
+only *instantiating* it does, by initializing every layer's starting
+weights:
 
 ```python
 torch.manual_seed(42)
@@ -99,6 +193,14 @@ a jet pair is Hbb, Hcc, or QCD isn't just about what one jet looks like
 alone, it's about the *relationship* between the two. Self-attention lets
 the model reason about jets *together* instead of scoring each one
 separately.
+
+::: callout
+This is the same core mechanism behind large language models like GPT and
+Claude - there, self-attention lets each word in a sentence "look at"
+every other word to figure out how they relate before predicting what
+comes next. Here, it's the same math applied to 2 jets instead of a
+sequence of text tokens.
+:::
 
 A few of the settings:
 
@@ -199,64 +301,6 @@ A: After `self.embedding(x)`: `(32, 2, 64)` - embedding expands each jet's 10 nu
 - Mean pooling merges the two jets' descriptions into one summary per event.
 - A small MLP turns that summary into 3 final class scores.
 - Next: [Training the Model](07-training-the-model.md) - how the model actually learns from examples.
-
-## Full code for this lesson
-
-Copy this into your own Jupyter notebook cell(s), in order, as you go.
-
-```python
-class MiniParT(nn.Module):
-    def __init__(self, input_dim, embed_dim=64, num_heads=4, hidden_dim=128, num_classes=3):
-        super(MiniParT, self).__init__()
-        
-        # 1. Linear projection (Embedding)
-        self.embedding = nn.Linear(input_dim, embed_dim)
-        
-        # 2. Transformer Encoder Layer (Self-Attention)
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=embed_dim, 
-            nhead=num_heads, 
-            dim_feedforward=hidden_dim, 
-            batch_first=True,
-            dropout=0.1
-        )
-        # Using just 2 layers for a "mini" model to keep local training fast
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=2)
-        
-        # 3. Classification Head
-        self.mlp = nn.Sequential(
-            nn.Linear(embed_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_dim, num_classes)
-        )
-
-    def forward(self, x):
-        # x shape: (Batch, Seq_Len=2, Features)
-        
-        # Project features
-        x = self.embedding(x) # shape: (Batch, 2, embed_dim)
-        
-        # Apply self-attention
-        x = self.transformer(x) # shape: (Batch, 2, embed_dim)
-        
-        # Mean pooling over the sequence (the 2 jets)
-        x_pooled = x.mean(dim=1) # shape: (Batch, embed_dim)
-        
-        # Classify
-        out = self.mlp(x_pooled) # shape: (Batch, num_classes)
-        return out
-
-torch.manual_seed(42)
-np.random.seed(42)
-
-model = MiniParT(input_dim=len(FEATURE_NAMES))
-print(model)
-```
-
-Instantiating `MiniParT` and calling `print(model)` prints a summary of
-every layer defined above, in order - a useful sanity check that the
-architecture you just read through is the architecture PyTorch built.
 
 :::::: keypoints
 - The embedding layer translates each jet's 10 raw numbers into a richer 64-number internal description.

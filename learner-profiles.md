@@ -2,16 +2,8 @@
 title: Learner Profiles
 ---
 
-This lesson is aimed at physics and data science students working with
-CMS Open Data, such as participants in the Notre Dame CMS Open Data
-Workshop, who want to understand how a transformer-based classifier is
-built and trained on real collision data.
-
 ## Who this lesson is for
 
-- Physics or data science students who want hands-on experience building
-  a machine learning model on real CMS Open Data, rather than only reading
-  about how one works.
 - Workshop participants who have seen jets, quarks, or the Higgs boson
   discussed conceptually and want to see how those ideas turn into actual
   training data and code.

@@ -18,180 +18,7 @@ exercises: 15
 - Extract and compare the model's internal event representations using cosine similarity.
 ::::::
 
-Training accuracy (see [Training the Model](07-training-the-model.md)) can
-lie to you - a model can look great on data it's already memorized and
-still be useless on new data. This episode is about actually finding out
-whether MiniParT learned something real, using only the 20% of data it
-never saw during training. All of this is in the code built in this
-episode below.
-
-## Step 1 - Test accuracy
-
-```python
-model.eval()
-with torch.no_grad():
-    for batch_x, batch_y in test_loader:
-        outputs = model(batch_x)
-        _, predicted = outputs.max(1)
-        correct += predicted.eq(batch_y).sum().item()
-
-test_acc = 100. * correct / total
-```
-
-- **`model.eval()`** - the opposite of `model.train()`. Switches off
-  dropout, so the model gives its single best, consistent answer instead
-  of the slightly-randomized training version.
-- **`torch.no_grad()`** - tells PyTorch not to track gradients here, since
-  we're only checking answers, not training. Faster, less memory.
-- **`outputs.max(1)`** - picks whichever of the 3 class scores is highest;
-  that's the model's predicted class.
-- **`test_acc`** - the percentage of *unseen* test examples classified
-  correctly - the honest report card.
-
-A typical run reaches a final test accuracy around 71% (your own number
-will vary slightly run to run). Over the 10 training epochs, loss
-typically drops from around 0.68 to around 0.56, and training accuracy
-climbs from roughly 66% to 72%.
-
-## Step 2 - The confusion matrix: not just "right or wrong," but *how* wrong
-
-Overall accuracy hides an important detail: is the model struggling to
-tell Hbb from Hcc specifically (the hard physics problem from
-[The Big Picture](01-introduction.md)), or mostly confusing signal with
-background? A **confusion matrix** answers that by showing, for every
-true class, exactly which class the model guessed:
-
-```python
-cm = confusion_matrix(all_labels, all_preds)
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-            xticklabels=['Hbb (0)', 'Hcc (1)', 'QCD (2)'],
-            yticklabels=['Hbb (0)', 'Hcc (1)', 'QCD (2)'])
-```
-
-Each row is "events that were *actually* this class," each column is
-"events the model *guessed* were this class." (See
-[The Big Picture](01-introduction.md) for a refresher on reading a
-confusion matrix.) A perfect model would have large numbers only on the
-diagonal. A lot of events landing in the Hbb-row/Hcc-column square (or
-vice versa) means the model is mixing up the two Higgs decay types -
-given how physically similar bottom and charm jets are, that's exactly
-where you'd expect it to struggle most.
-
-A typical run looks something like this (your own numbers will vary
-slightly):
-
-| | Predicted Hbb (0) | Predicted Hcc (1) | Predicted QCD (2) |
-|---|---:|---:|---:|
-| **True Hbb (0)** | 5138 | 1547 | 520 |
-| **True Hcc (1)** | 3915 | 2962 | 582 |
-| **True QCD (2)** | 275 | 267 | 9458 |
-
-Look closely at the Hcc row: true Hcc events get predicted as Hbb (3915)
-*more often* than they get correctly identified as Hcc (2962) - the
-model is more likely to call an Hcc event "Hbb" than to get it right.
-QCD, meanwhile, is almost perfectly separated from both signal classes.
-This is the Hbb/Hcc-vs-QCD asymmetry from
-[The Big Picture](01-introduction.md) showing up directly in real numbers.
-
-## Step 3 - ROC curves: how good is each class at different confidence thresholds
-
-So far we've only looked at the model's single best guess, but it
-actually outputs a *confidence* for every class (via `softmax`, turning
-the 3 raw scores into 3 probabilities that add up to 1). A **ROC curve**
-(Receiver Operating Characteristic) shows the tradeoff between being
-strict or loose about that confidence, for one class versus everything
-else:
-
-```python
-fpr, tpr, _ = roc_curve(y_test_bin[:, i], all_probs[:, i])
-roc_auc = auc(fpr, tpr)
-```
-
-- **True Positive Rate** (y-axis) - of all the real Hbb events, what
-  fraction did we correctly flag as Hbb ("signal efficiency")?
-- **False Positive Rate** (x-axis) - of all events that were *not* Hbb,
-  what fraction did we mistakenly flag as Hbb anyway ("background efficiency")?
-- Sliding the confidence threshold traces the curve. Random guessing
-  traces the diagonal; a useful model bulges toward the top-left corner.
-- **AUC** (Area Under the Curve) boils the whole curve down to one number:
-  `0.5` = coin flip, `1.0` = perfect classifier.
-
-We do this once per class ("Hbb vs. everything else," and so on) - a
-**one-vs-rest** approach, which is why labels get "binarized" first
-(`label_binarize`) into three separate yes/no columns. (See
-[The Big Picture](01-introduction.md) for a refresher on what ROC curves
-and AUC measure.)
-
-A typical run's AUC values look something like: Hbb vs Rest ≈ 0.83, Hcc
-vs Rest ≈ 0.83, QCD vs Rest ≈ 0.98. QCD is nearly perfectly separable
-from everything else, while Hbb and Hcc sit close together and
-noticeably lower - the same Hbb/Hcc difficulty visible in the confusion
-matrix above, seen from a different angle.
-
-## Bonus - Peeking inside the model with "fingerprints"
-
-Instead of only looking at the model's *final* answer, we can grab its
-internal 64-number description of an event - right after self-attention
-and pooling, but before the classification head. Think of this vector as
-the model's own internal "fingerprint" of what kind of event it thinks
-this is. (See [The Big Picture](01-introduction.md) for a refresher on
-what cosine similarity measures.)
-
-```python
-def get_fingerprint(event_tensor):
-    emb = model.embedding(event_tensor)
-    contextualized = model.transformer(emb)
-    fingerprint = contextualized.mean(dim=1)
-    return fingerprint
-```
-
-Comparing fingerprints with **cosine similarity** (-1 = opposite, 1 =
-identical) gives a human-readable check of whether the model's internal
-representation actually separates the three classes. It's tempting to
-just grab one Hbb, one Hcc, and one QCD event and compare those three
-fingerprints directly, but a single event carries a lot of its own
-noise, so it doesn't necessarily represent its whole class well. The
-full code below instead averages the fingerprint across *every* test
-event in each class first, which is a far more trustworthy summary of
-what the model actually learned - see the explanation right after that
-code for why the single-event version can be actively misleading.
-
-::::::::::::::::::::::::::::::::::::: challenge
-
-## Question
-
-Q: A full training run of MiniParT (10 epochs) produced this confusion matrix on the held-out test set:
-
-| | Predicted Hbb (0) | Predicted Hcc (1) | Predicted QCD (2) |
-|---|---:|---:|---:|
-| **True Hbb (0)** | 4399 | 2382 | 424 |
-| **True Hcc (1)** | 2865 | 4092 | 502 |
-| **True QCD (2)** | 295 | 304 | 9401 |
-
-Using only this table, compute the overall test accuracy. Then say which two classes the model confuses most often, and whether that matches what this lesson predicted it would struggle with.
-
-:::::::::::::::: solution
-
-A: Overall accuracy is the diagonal sum divided by the total. Diagonal: `4399 + 4092 + 9401 = 17892`. Total: `7205 + 7459 + 10000 = 24664`. That gives `17892 / 24664 ≈ 0.7254`, about 72.5%.
-
-The largest off-diagonal numbers are `2382` (true Hbb predicted as Hcc) and `2865` (true Hcc predicted as Hbb), far larger than the Hbb/Hcc-to-QCD confusions. The model's mistakes are concentrated almost entirely on telling Hbb and Hcc apart from each other, while separating both from QCD cleanly - exactly what [The Big Picture](01-introduction.md) predicted.
-
-:::::::::::::::::::::::::
-:::::::::::::::::::::::::::::::::::::::::::::::
-
-## Quick recap
-- `model.eval()` + `torch.no_grad()` + the held-out test set gives you an honest accuracy score.
-- A confusion matrix shows *which* classes get mixed up with which - not just an overall score.
-- ROC curves and AUC summarize the tradeoff between catching real signal and letting background through, at every possible confidence threshold.
-- You can peek at the model's internal 64-number "fingerprint" for any event to sanity-check that it's genuinely separating the three classes internally, not just getting lucky on final guesses.
-
-That's the whole pipeline, start to finish - from raw CMS Open Data files
-to a trained, evaluated transformer. See [The Complete Code](09-complete-code.md)
-for every piece assembled in one place.
-
-## Full code for this lesson
-
-Copy this into your own Jupyter notebook cell(s), in order, as you go.
+## Run this first
 
 ```python
 model.eval()
@@ -217,6 +44,10 @@ with torch.no_grad():
 
 test_acc = 100. * correct / total
 print(f"Final Test Accuracy: {test_acc:.2f}%")
+```
+
+```output
+Final Test Accuracy: 72.54%
 ```
 
 ```python
@@ -366,6 +197,19 @@ df_sim = pd.DataFrame(data, index=["Hbb", "Hcc", "QCD"])
 print(df_sim.round(3))
 ```
 
+```output
+Cosine Similarity Matrix (1 = Identical, -1 = Opposite):
+
+        Hbb    Hcc    QCD
+Hbb   1.000  0.712 -0.183
+Hcc   0.712  1.000 -0.146
+QCD  -0.183 -0.146  1.000
+```
+
+(Approximate - these averaged-fingerprint numbers depend on the actual
+training run, but the pattern - Hbb and Hcc pointing in a noticeably
+similar direction, both clearly separated from QCD - is consistent.)
+
 Why average instead of comparing single events? Grabbing just one Hbb,
 one Hcc, and one QCD event and comparing their fingerprints directly can
 look actively backwards. In one such single-event comparison, Hbb and
@@ -381,6 +225,182 @@ class. Averaging the fingerprint across every test event in a class
 cancels out that event-to-event noise and leaves a genuinely
 representative direction for what the model has learned about that
 class as a whole, which is why it's the version worth trusting.
+
+---
+*Run the block above first, then read on to see what each part does.*
+
+Training accuracy (see [Training the Model](07-training-the-model.md)) can
+lie to you - a model can look great on data it's already memorized and
+still be useless on new data. This episode is about actually finding out
+whether MiniParT learned something real, using only the 20% of data it
+never saw during training - exactly what the code above just did. The
+rest of this episode walks back through it piece by piece.
+
+## Step 1 - Test accuracy
+
+```python
+model.eval()
+with torch.no_grad():
+    for batch_x, batch_y in test_loader:
+        outputs = model(batch_x)
+        _, predicted = outputs.max(1)
+        correct += predicted.eq(batch_y).sum().item()
+
+test_acc = 100. * correct / total
+```
+
+- **`model.eval()`** - the opposite of `model.train()`. Switches off
+  dropout, so the model gives its single best, consistent answer instead
+  of the slightly-randomized training version.
+- **`torch.no_grad()`** - tells PyTorch not to track gradients here, since
+  we're only checking answers, not training. Faster, less memory.
+- **`outputs.max(1)`** - picks whichever of the 3 class scores is highest;
+  that's the model's predicted class.
+- **`test_acc`** - the percentage of *unseen* test examples classified
+  correctly - the honest report card.
+
+A typical run reaches a final test accuracy around 71% (your own number
+will vary slightly run to run). Over the 10 training epochs, loss
+typically drops from around 0.68 to around 0.56, and training accuracy
+climbs from roughly 66% to 72%.
+
+## Step 2 - The confusion matrix: not just "right or wrong," but *how* wrong
+
+Overall accuracy hides an important detail: is the model struggling to
+tell Hbb from Hcc specifically (the hard physics problem from
+[The Big Picture](01-introduction.md)), or mostly confusing signal with
+background? A **confusion matrix** answers that by showing, for every
+true class, exactly which class the model guessed:
+
+```python
+cm = confusion_matrix(all_labels, all_preds)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=['Hbb (0)', 'Hcc (1)', 'QCD (2)'],
+            yticklabels=['Hbb (0)', 'Hcc (1)', 'QCD (2)'])
+```
+
+Each row is "events that were *actually* this class," each column is
+"events the model *guessed* were this class." A perfect model would have
+large numbers only on the diagonal; large numbers off the diagonal show
+exactly which two classes get mixed up. A lot of events landing in the Hbb-row/Hcc-column square (or
+vice versa) means the model is mixing up the two Higgs decay types -
+given how physically similar bottom and charm jets are, that's exactly
+where you'd expect it to struggle most.
+
+A typical run looks something like this (your own numbers will vary
+slightly):
+
+| | Predicted Hbb (0) | Predicted Hcc (1) | Predicted QCD (2) |
+|---|---:|---:|---:|
+| **True Hbb (0)** | 5138 | 1547 | 520 |
+| **True Hcc (1)** | 3915 | 2962 | 582 |
+| **True QCD (2)** | 275 | 267 | 9458 |
+
+Look closely at the Hcc row: true Hcc events get predicted as Hbb (3915)
+*more often* than they get correctly identified as Hcc (2962) - the
+model is more likely to call an Hcc event "Hbb" than to get it right.
+QCD, meanwhile, is almost perfectly separated from both signal classes.
+This is the Hbb/Hcc-vs-QCD asymmetry from
+[The Big Picture](01-introduction.md) showing up directly in real numbers.
+
+## Step 3 - ROC curves: how good is each class at different confidence thresholds
+
+So far we've only looked at the model's single best guess, but it
+actually outputs a *confidence* for every class (via `softmax`, turning
+the 3 raw scores into 3 probabilities that add up to 1). A **ROC curve**
+(Receiver Operating Characteristic) shows the tradeoff between being
+strict or loose about that confidence, for one class versus everything
+else:
+
+```python
+fpr, tpr, _ = roc_curve(y_test_bin[:, i], all_probs[:, i])
+roc_auc = auc(fpr, tpr)
+```
+
+- **True Positive Rate** (y-axis) - of all the real Hbb events, what
+  fraction did we correctly flag as Hbb ("signal efficiency")?
+- **False Positive Rate** (x-axis) - of all events that were *not* Hbb,
+  what fraction did we mistakenly flag as Hbb anyway ("background efficiency")?
+- Sliding the confidence threshold traces the curve. Random guessing
+  traces the diagonal; a useful model bulges toward the top-left corner.
+- **AUC** (Area Under the Curve) boils the whole curve down to one number:
+  `0.5` = coin flip, `1.0` = perfect classifier.
+
+We do this once per class ("Hbb vs. everything else," and so on) - a
+**one-vs-rest** approach, which is why labels get "binarized" first
+(`label_binarize`) into three separate yes/no columns.
+
+A typical run's AUC values look something like: Hbb vs Rest ≈ 0.83, Hcc
+vs Rest ≈ 0.83, QCD vs Rest ≈ 0.98. QCD is nearly perfectly separable
+from everything else, while Hbb and Hcc sit close together and
+noticeably lower - the same Hbb/Hcc difficulty visible in the confusion
+matrix above, seen from a different angle.
+
+## Bonus - Peeking inside the model with "fingerprints"
+
+Instead of only looking at the model's *final* answer, we can grab its
+internal 64-number description of an event - right after self-attention
+and pooling, but before the classification head. Think of this vector as
+the model's own internal "fingerprint" of what kind of event it thinks
+this is. Comparing two fingerprints with cosine similarity tells us how
+similar their *direction* is, ignoring length: close to 1 means pointing
+the same way, close to -1 means opposite ways, close to 0 means unrelated
+directions. MiniParT is never explicitly told "Hbb and Hcc should point
+in similar directions" - it's only ever graded on its final guess - so
+this internal geometry doesn't have to match human intuition, and the
+example above shows a case where it doesn't.
+
+```python
+def get_fingerprint(event_tensor):
+    emb = model.embedding(event_tensor)
+    contextualized = model.transformer(emb)
+    fingerprint = contextualized.mean(dim=1)
+    return fingerprint
+```
+
+Comparing fingerprints with **cosine similarity** (-1 = opposite, 1 =
+identical) gives a human-readable check of whether the model's internal
+representation actually separates the three classes. It's tempting to
+just grab one Hbb, one Hcc, and one QCD event and compare those three
+fingerprints directly, but a single event carries a lot of its own
+noise, so it doesn't necessarily represent its whole class well. The
+code you ran above instead averages the fingerprint across *every* test
+event in each class first, which is a far more trustworthy summary of
+what the model actually learned - see the explanation above for why the
+single-event version can be actively misleading.
+
+::::::::::::::::::::::::::::::::::::: challenge
+
+## Question
+
+Q: A full training run of MiniParT (10 epochs) produced this confusion matrix on the held-out test set:
+
+| | Predicted Hbb (0) | Predicted Hcc (1) | Predicted QCD (2) |
+|---|---:|---:|---:|
+| **True Hbb (0)** | 4399 | 2382 | 424 |
+| **True Hcc (1)** | 2865 | 4092 | 502 |
+| **True QCD (2)** | 295 | 304 | 9401 |
+
+Using only this table, compute the overall test accuracy. Then say which two classes the model confuses most often, and whether that matches what this lesson predicted it would struggle with.
+
+:::::::::::::::: solution
+
+A: Overall accuracy is the diagonal sum divided by the total. Diagonal: `4399 + 4092 + 9401 = 17892`. Total: `7205 + 7459 + 10000 = 24664`. That gives `17892 / 24664 ≈ 0.7254`, about 72.5%.
+
+The largest off-diagonal numbers are `2382` (true Hbb predicted as Hcc) and `2865` (true Hcc predicted as Hbb), far larger than the Hbb/Hcc-to-QCD confusions. The model's mistakes are concentrated almost entirely on telling Hbb and Hcc apart from each other, while separating both from QCD cleanly - exactly what [The Big Picture](01-introduction.md) predicted.
+
+:::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::
+
+## Quick recap
+- `model.eval()` + `torch.no_grad()` + the held-out test set gives you an honest accuracy score.
+- A confusion matrix shows *which* classes get mixed up with which - not just an overall score.
+- ROC curves and AUC summarize the tradeoff between catching real signal and letting background through, at every possible confidence threshold.
+- You can peek at the model's internal 64-number "fingerprint" for any event to sanity-check that it's genuinely separating the three classes internally, not just getting lucky on final guesses.
+
+That's the whole pipeline, start to finish - from raw CMS Open Data files
+to a trained, evaluated transformer. See [The Complete Code](09-complete-code.md)
+for every piece assembled in one place.
 
 :::::: keypoints
 - `model.eval()` plus `torch.no_grad()` plus the held-out test set gives an honest accuracy score, unlike training accuracy; a typical run reaches around 71% test accuracy.

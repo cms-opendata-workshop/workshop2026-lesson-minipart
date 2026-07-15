@@ -18,6 +18,11 @@ exercises: 0
 
 ## Installing the packages this lesson needs
 
+If you followed [Setup](../learners/setup.md), you likely already ran this
+install command once. Running it again here is a quick, harmless
+verification that everything is still in place before moving on - `pip`
+just confirms the packages are installed and does nothing if they already are.
+
 Colab comes with many common data science packages already installed,
 including `numpy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn`, and
 `torch`. It does not come with `uproot` (for reading ROOT files),
@@ -47,6 +52,10 @@ tree = uproot.open(tthtobb_path)["Events"]
 print("Number of events:", tree.num_entries)
 ```
 
+```output
+Number of events: 174000
+```
+
 Nothing here gets downloaded to disk - `uproot` streams just the data it
 needs, which is why this works comfortably inside Colab's storage limits.
 
@@ -72,19 +81,6 @@ TTHTOCC_PATH = "root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16N
 
 QCD_BCTOE_PATH = "root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/QCD_Pt_80to170_bcToE_TuneCP5_13TeV_pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/270000/A133135A-C83E-D245-846F-210C7AD2D29C.root"
 ```
-
-## Verifying it works
-
-Before moving on, confirm a stream actually opens and contains the data
-this lesson expects:
-
-```python
-tree = uproot.open(TTHTOBB_PATH)["Events"]
-print("Number of events:", tree.num_entries)
-```
-
-This should print `174000`. If it prints a much smaller number, you have
-the wrong file - check it against the table above before using it.
 
 :::::: keypoints
 - Colab does not preinstall `uproot`, `fsspec-xrootd`, `awkward`, or `vector`; install them with `!pip install` before running anything else in this lesson.

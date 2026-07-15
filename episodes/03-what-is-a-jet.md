@@ -20,14 +20,59 @@ exercises: 10
 - Read jet data out of a NanoAOD file using `uproot`.
 ::::::
 
+## Run this first
+
+```python
+import uproot
+import awkward as ak
+import vector
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import TensorDataset, DataLoader
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+vector.register_awkward()
+
+# We avoid DeepJet/DeepCSV variables as requested.
+# Using kinematics + energy fractions + pileup/multiplicity info.
+FEATURE_NAMES = [
+    'Jet_pt', 'Jet_eta', 'Jet_phi', 'Jet_mass',
+    'Jet_chHEF', 'Jet_neHEF', 'Jet_chEmEF', 'Jet_neEmEF',
+    'Jet_nConstituents', 'Jet_puId'
+]
+
+# Labels: 0 = Hbb, 1 = Hcc, 2 = QCD
+```
+
+---
+*Run the block above first, then read on to see what each part does.*
+
+This block gathers the imports used across the rest of this lesson,
+including `vector.register_awkward()`, which is needed before the
+four-vector matching used in the next episode will work, and defines
+`FEATURE_NAMES`, the exact list of 10 jet numbers explained below.
+
+DeepJet and DeepCSV are CMS's own existing, more sophisticated jet-tagging
+algorithms - already trained to estimate things like "how likely is this
+jet to contain a bottom quark." Feeding their output into MiniParT would
+let the model just copy an existing tagger's answer instead of learning
+to separate Hbb, Hcc, and QCD from more basic information itself, which
+would defeat the point of building a classifier from scratch.
+
 ## The detector, in one picture (with words)
 
-Picture the CMS detector as nested cylindrical layers wrapped around the
-pipe where protons collide. When a collision happens, quarks and other
-particles shoot outward in all directions. A single quark can't exist
-alone for long - as it flies outward, it drags a cloud of other particles
-with it, the way a fast-moving truck kicks up a spray of gravel behind it.
-**That whole spray, moving roughly together, is called a jet.**
+When a collision happens inside CMS, quarks and other particles shoot
+outward in all directions. A single quark can't exist alone for long - as
+it flies outward, it drags a cloud of other particles with it, the way a
+fast-moving truck kicks up a spray of gravel behind it. **That whole
+spray, moving roughly together, is called a jet.** For the full
+detector-level picture - the clustering algorithm, pileup removal, and
+the complete NanoAOD `Jet_*` branch list - see the CMS Open Data
+Workshop's
+[jets and MET lesson](https://cms-opendata-workshop.github.io/workshop2026-lesson-physics-objects/instructor/04-jetmet.html);
+this episode picks up from there with the 10 numbers MiniParT actually uses.
 
 The detector doesn't record "a bottom quark went this way." It records
 where dozens of individual particles landed and how much energy each one
@@ -38,8 +83,8 @@ particle hits.
 
 ## The 10 numbers we give the model
 
-For every jet, we use these 10 features. Later in this episode you'll define
-this exact list as `FEATURE_NAMES` in code, and the `extract_features()`
+For every jet, we use these 10 features. You already defined this exact
+list as `FEATURE_NAMES` in the code above, and the `extract_features()`
 function built in the [next episode](04-finding-the-truth-labels.md) reuses
 it:
 
@@ -100,16 +145,10 @@ thrown away.
 These numbers come straight out of **NanoAOD** files - CMS's compact,
 public data format, stored as [ROOT](https://root.cern.ch/) files. We
 read them with `uproot`, which pulls out a "branch" (a column of data) by
-name without needing any CERN-specific software installed:
+name without needing any CERN-specific software installed, using the
+`FEATURE_NAMES` list already defined in the code above:
 
 ```python
-import uproot
-
-FEATURE_NAMES = [
-    'Jet_pt', 'Jet_eta', 'Jet_phi', 'Jet_mass',
-    'Jet_chHEF', 'Jet_neHEF', 'Jet_chEmEF', 'Jet_neEmEF',
-    'Jet_nConstituents', 'Jet_puId'
-]
 max_events = 50000
 
 tree = uproot.open(TTHTOBB_PATH)["Events"]
@@ -137,45 +176,6 @@ confirms the 10 columns actually loaded match `FEATURE_NAMES`.
 - We describe each jet with 10 numbers: 4 about its size/direction (`pt`, `eta`, `phi`, `mass`), 4 about what it's made of (the energy fractions), and 2 about its structure (`nConstituents`, `puId`).
 - These numbers are read from public CMS NanoAOD files using `uproot`.
 - Next: [Finding the Truth Labels](04-finding-the-truth-labels.md) - how do we know the *right answer* for each jet during training?
-
-## Full code for this lesson
-
-Copy this into your own Jupyter notebook cell(s), in order, as you go.
-
-```python
-import uproot
-import awkward as ak
-import vector
-import numpy as np
-import torch
-import torch.nn as nn
-from torch.utils.data import TensorDataset, DataLoader
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-
-vector.register_awkward()
-
-# We avoid DeepJet/DeepCSV variables as requested.
-# Using kinematics + energy fractions + pileup/multiplicity info.
-FEATURE_NAMES = [
-    'Jet_pt', 'Jet_eta', 'Jet_phi', 'Jet_mass',
-    'Jet_chHEF', 'Jet_neHEF', 'Jet_chEmEF', 'Jet_neEmEF',
-    'Jet_nConstituents', 'Jet_puId'
-]
-
-# Labels: 0 = Hbb, 1 = Hcc, 2 = QCD
-```
-
-This block gathers the imports used across the rest of this lesson,
-including `vector.register_awkward()`, which is needed before the
-four-vector matching used in the next episode will work.
-
-DeepJet and DeepCSV are CMS's own existing, more sophisticated jet-tagging
-algorithms - already trained to estimate things like "how likely is this
-jet to contain a bottom quark." Feeding their output into MiniParT would
-let the model just copy an existing tagger's answer instead of learning
-to separate Hbb, Hcc, and QCD from more basic information itself, which
-would defeat the point of building a classifier from scratch.
 
 ::::::::::::::::::::::::::::::::::::: challenge
 

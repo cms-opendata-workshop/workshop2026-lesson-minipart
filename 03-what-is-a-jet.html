@@ -234,12 +234,12 @@
 
     <div id="flush-collapsecurrent" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushcurrent">
       <div class="accordion-body">
-        <ul><li><a href="#the-detector-in-one-picture-with-words">The detector, in one picture (with words)</a></li>
+        <ul><li><a href="#run-this-first">Run this first</a></li>
+<li><a href="#the-detector-in-one-picture-with-words">The detector, in one picture (with words)</a></li>
 <li><a href="#the-10-numbers-we-give-the-model">The 10 numbers we give the model</a></li>
 <li><a href="#why-not-just-look-at-raw-particles">Why not just look at raw particles?</a></li>
 <li><a href="#where-this-data-lives">Where this data lives</a></li>
 <li><a href="#quick-recap">Quick recap</a></li>
-<li><a href="#full-code-for-this-lesson">Full code for this lesson</a></li>
         </ul></div><!--/div.accordion-body-->
     </div><!--/div.accordion-collapse-->
 
@@ -358,7 +358,7 @@
       </div>
       <hr></nav><main id="main-content" class="main-content"><div class="container lesson-content">
         <h1>What Is a Jet?</h1>
-        <p>Last updated on 2026-07-14 |
+        <p>Last updated on 2026-07-15 |
 
         <a href="https://github.com/cms-opendata-workshop/workbench-template-md/edit/main/episodes/03-what-is-a-jet.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 
@@ -408,14 +408,57 @@ features.</li>
 </div>
 </div>
 </div>
-<section><h2 class="section-heading" id="the-detector-in-one-picture-with-words">The detector, in one picture (with words)<a class="anchor" aria-label="anchor" href="#the-detector-in-one-picture-with-words"></a></h2>
-<hr class="half-width"><p>Picture the CMS detector as nested cylindrical layers wrapped around
-the pipe where protons collide. When a collision happens, quarks and
-other particles shoot outward in all directions. A single quark can’t
-exist alone for long - as it flies outward, it drags a cloud of other
-particles with it, the way a fast-moving truck kicks up a spray of
-gravel behind it. <strong>That whole spray, moving roughly together, is
-called a jet.</strong></p>
+<section><h2 class="section-heading" id="run-this-first">Run this first<a class="anchor" aria-label="anchor" href="#run-this-first"></a></h2>
+<hr class="half-width"><div class="codewrapper sourceCode" id="cb1">
+<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
+</h3>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" tabindex="-1" aria-label="code-block-1-1"></a><span class="im">import</span> uproot</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1" aria-label="code-block-1-2"></a><span class="im">import</span> awkward <span class="im">as</span> ak</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1" aria-label="code-block-1-3"></a><span class="im">import</span> vector</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1" aria-label="code-block-1-4"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1" aria-label="code-block-1-5"></a><span class="im">import</span> torch</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1" aria-label="code-block-1-6"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1" aria-label="code-block-1-7"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> TensorDataset, DataLoader</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1" aria-label="code-block-1-8"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1" aria-label="code-block-1-9"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1" aria-label="code-block-1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1" aria-label="code-block-1-11"></a>vector.register_awkward()</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1" aria-label="code-block-1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1" aria-label="code-block-1-13"></a><span class="co"># We avoid DeepJet/DeepCSV variables as requested.</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1" aria-label="code-block-1-14"></a><span class="co"># Using kinematics + energy fractions + pileup/multiplicity info.</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1" aria-label="code-block-1-15"></a>FEATURE_NAMES <span class="op">=</span> [</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1" aria-label="code-block-1-16"></a>    <span class="st">'Jet_pt'</span>, <span class="st">'Jet_eta'</span>, <span class="st">'Jet_phi'</span>, <span class="st">'Jet_mass'</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1" aria-label="code-block-1-17"></a>    <span class="st">'Jet_chHEF'</span>, <span class="st">'Jet_neHEF'</span>, <span class="st">'Jet_chEmEF'</span>, <span class="st">'Jet_neEmEF'</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1" aria-label="code-block-1-18"></a>    <span class="st">'Jet_nConstituents'</span>, <span class="st">'Jet_puId'</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1" aria-label="code-block-1-19"></a>]</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1" aria-label="code-block-1-20"></a></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1" aria-label="code-block-1-21"></a><span class="co"># Labels: 0 = Hbb, 1 = Hcc, 2 = QCD</span></span></code></pre>
+</div>
+<hr><p><em>Run the block above first, then read on to see what each part
+does.</em></p>
+<p>This block gathers the imports used across the rest of this lesson,
+including <code>vector.register_awkward()</code>, which is needed before
+the four-vector matching used in the next episode will work, and defines
+<code>FEATURE_NAMES</code>, the exact list of 10 jet numbers explained
+below.</p>
+<p>DeepJet and DeepCSV are CMS’s own existing, more sophisticated
+jet-tagging algorithms - already trained to estimate things like “how
+likely is this jet to contain a bottom quark.” Feeding their output into
+MiniParT would let the model just copy an existing tagger’s answer
+instead of learning to separate Hbb, Hcc, and QCD from more basic
+information itself, which would defeat the point of building a
+classifier from scratch.</p>
+</section><section><h2 class="section-heading" id="the-detector-in-one-picture-with-words">The detector, in one picture (with words)<a class="anchor" aria-label="anchor" href="#the-detector-in-one-picture-with-words"></a></h2>
+<hr class="half-width"><p>When a collision happens inside CMS, quarks and other particles shoot
+outward in all directions. A single quark can’t exist alone for long -
+as it flies outward, it drags a cloud of other particles with it, the
+way a fast-moving truck kicks up a spray of gravel behind it.
+<strong>That whole spray, moving roughly together, is called a
+jet.</strong> For the full detector-level picture - the clustering
+algorithm, pileup removal, and the complete NanoAOD <code>Jet_*</code>
+branch list - see the CMS Open Data Workshop’s <a href="https://cms-opendata-workshop.github.io/workshop2026-lesson-physics-objects/instructor/04-jetmet.html" class="external-link">jets
+and MET lesson</a>; this episode picks up from there with the 10 numbers
+MiniParT actually uses.</p>
 <p>The detector doesn’t record “a bottom quark went this way.” It
 records where dozens of individual particles landed and how much energy
 each one carried. Reconstruction software then groups those particles
@@ -423,8 +466,8 @@ back together into a jet and computes useful summary numbers about it.
 <strong>Those summary numbers are what our model actually sees</strong>
 - not the raw particle hits.</p>
 </section><section><h2 class="section-heading" id="the-10-numbers-we-give-the-model">The 10 numbers we give the model<a class="anchor" aria-label="anchor" href="#the-10-numbers-we-give-the-model"></a></h2>
-<hr class="half-width"><p>For every jet, we use these 10 features. Later in this episode you’ll
-define this exact list as <code>FEATURE_NAMES</code> in code, and the
+<hr class="half-width"><p>For every jet, we use these 10 features. You already defined this
+exact list as <code>FEATURE_NAMES</code> in the code above, and the
 <code>extract_features()</code> function built in the <a href="04-finding-the-truth-labels.html">next episode</a> reuses it:</p>
 <div class="section level3">
 <h3 id="where-the-jet-is-and-how-big-it-is">Where the jet is and how big it is<a class="anchor" aria-label="anchor" href="#where-the-jet-is-and-how-big-it-is"></a></h3>
@@ -497,23 +540,17 @@ thrown away.</p>
 <hr class="half-width"><p>These numbers come straight out of <strong>NanoAOD</strong> files -
 CMS’s compact, public data format, stored as <a href="https://root.cern.ch/" class="external-link">ROOT</a> files. We read them with
 <code>uproot</code>, which pulls out a “branch” (a column of data) by
-name without needing any CERN-specific software installed:</p>
-<div class="codewrapper sourceCode" id="cb1">
+name without needing any CERN-specific software installed, using the
+<code>FEATURE_NAMES</code> list already defined in the code above:</p>
+<div class="codewrapper sourceCode" id="cb2">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" tabindex="-1" aria-label="code-block-1-1"></a><span class="im">import</span> uproot</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1" aria-label="code-block-1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1" aria-label="code-block-1-3"></a>FEATURE_NAMES <span class="op">=</span> [</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1" aria-label="code-block-1-4"></a>    <span class="st">'Jet_pt'</span>, <span class="st">'Jet_eta'</span>, <span class="st">'Jet_phi'</span>, <span class="st">'Jet_mass'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1" aria-label="code-block-1-5"></a>    <span class="st">'Jet_chHEF'</span>, <span class="st">'Jet_neHEF'</span>, <span class="st">'Jet_chEmEF'</span>, <span class="st">'Jet_neEmEF'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1" aria-label="code-block-1-6"></a>    <span class="st">'Jet_nConstituents'</span>, <span class="st">'Jet_puId'</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1" aria-label="code-block-1-7"></a>]</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1" aria-label="code-block-1-8"></a>max_events <span class="op">=</span> <span class="dv">50000</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1" aria-label="code-block-1-9"></a></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1" aria-label="code-block-1-10"></a>tree <span class="op">=</span> uproot.<span class="bu">open</span>(TTHTOBB_PATH)[<span class="st">"Events"</span>]</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1" aria-label="code-block-1-11"></a>events <span class="op">=</span> tree.arrays(FEATURE_NAMES, entry_stop<span class="op">=</span>max_events)</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1" aria-label="code-block-1-12"></a><span class="bu">print</span>(<span class="st">"Number of events loaded:"</span>, <span class="bu">len</span>(events))</span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1" aria-label="code-block-1-13"></a><span class="bu">print</span>(<span class="st">"Fields loaded:"</span>, events.fields)</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" tabindex="-1" aria-label="code-block-2-1"></a>max_events <span class="op">=</span> <span class="dv">50000</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1" aria-label="code-block-2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1" aria-label="code-block-2-3"></a>tree <span class="op">=</span> uproot.<span class="bu">open</span>(TTHTOBB_PATH)[<span class="st">"Events"</span>]</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1" aria-label="code-block-2-4"></a>events <span class="op">=</span> tree.arrays(FEATURE_NAMES, entry_stop<span class="op">=</span>max_events)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1" aria-label="code-block-2-5"></a><span class="bu">print</span>(<span class="st">"Number of events loaded:"</span>, <span class="bu">len</span>(events))</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1" aria-label="code-block-2-6"></a><span class="bu">print</span>(<span class="st">"Fields loaded:"</span>, events.fields)</span></code></pre>
 </div>
 <div class="codewrapper">
 <h3 class="code-label">OUTPUT<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
@@ -543,45 +580,7 @@ and 2 about its structure (<code>nConstituents</code>,
 <li>Next: <a href="04-finding-the-truth-labels.html">Finding the Truth
 Labels</a> - how do we know the <em>right answer</em> for each jet
 during training?</li>
-</ul></section><section><h2 class="section-heading" id="full-code-for-this-lesson">Full code for this lesson<a class="anchor" aria-label="anchor" href="#full-code-for-this-lesson"></a></h2>
-<hr class="half-width"><p>Copy this into your own Jupyter notebook cell(s), in order, as you
-go.</p>
-<div class="codewrapper sourceCode" id="cb3">
-<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
-</h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" tabindex="-1" aria-label="code-block-3-1"></a><span class="im">import</span> uproot</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1" aria-label="code-block-3-2"></a><span class="im">import</span> awkward <span class="im">as</span> ak</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1" aria-label="code-block-3-3"></a><span class="im">import</span> vector</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1" aria-label="code-block-3-4"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1" aria-label="code-block-3-5"></a><span class="im">import</span> torch</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1" aria-label="code-block-3-6"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1" aria-label="code-block-3-7"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> TensorDataset, DataLoader</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1" aria-label="code-block-3-8"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1" aria-label="code-block-3-9"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1" aria-label="code-block-3-10"></a></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1" aria-label="code-block-3-11"></a>vector.register_awkward()</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1" aria-label="code-block-3-12"></a></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1" aria-label="code-block-3-13"></a><span class="co"># We avoid DeepJet/DeepCSV variables as requested.</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1" aria-label="code-block-3-14"></a><span class="co"># Using kinematics + energy fractions + pileup/multiplicity info.</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1" aria-label="code-block-3-15"></a>FEATURE_NAMES <span class="op">=</span> [</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1" aria-label="code-block-3-16"></a>    <span class="st">'Jet_pt'</span>, <span class="st">'Jet_eta'</span>, <span class="st">'Jet_phi'</span>, <span class="st">'Jet_mass'</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1" aria-label="code-block-3-17"></a>    <span class="st">'Jet_chHEF'</span>, <span class="st">'Jet_neHEF'</span>, <span class="st">'Jet_chEmEF'</span>, <span class="st">'Jet_neEmEF'</span>,</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1" aria-label="code-block-3-18"></a>    <span class="st">'Jet_nConstituents'</span>, <span class="st">'Jet_puId'</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1" aria-label="code-block-3-19"></a>]</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1" aria-label="code-block-3-20"></a></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1" aria-label="code-block-3-21"></a><span class="co"># Labels: 0 = Hbb, 1 = Hcc, 2 = QCD</span></span></code></pre>
-</div>
-<p>This block gathers the imports used across the rest of this lesson,
-including <code>vector.register_awkward()</code>, which is needed before
-the four-vector matching used in the next episode will work.</p>
-<p>DeepJet and DeepCSV are CMS’s own existing, more sophisticated
-jet-tagging algorithms - already trained to estimate things like “how
-likely is this jet to contain a bottom quark.” Feeding their output into
-MiniParT would let the model just copy an existing tagger’s answer
-instead of learning to separate Hbb, Hcc, and QCD from more basic
-information itself, which would defeat the point of building a
-classifier from scratch.</p>
-<div id="question" class="callout challenge">
+</ul><div id="question" class="callout challenge">
 <div class="callout-square">
 <i class="callout-icon" data-feather="zap"></i>
 </div>
@@ -601,7 +600,7 @@ suggest about how the two jets are physically different?</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
 <div class="accordion-body">
 <p>A: <code>Jet_nConstituents</code> counts how many particles were
 reconstructed inside the jet. Four constituents is a tight, simple
@@ -699,7 +698,7 @@ any links that you are not going to use.
   "url": "https://cms-opendata-workshop.github.io/workbench-template-md/03-what-is-a-jet.html",
   "identifier": "https://cms-opendata-workshop.github.io/workbench-template-md/03-what-is-a-jet.html",
   "dateCreated": "2026-07-08",
-  "dateModified": "2026-07-14",
+  "dateModified": "2026-07-15",
   "datePublished": "2026-07-15"
 }
 

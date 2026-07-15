@@ -243,12 +243,12 @@
 
     <div id="flush-collapsecurrent" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushcurrent">
       <div class="accordion-body">
-        <ul><li><a href="#why-we-need-an-answer-key">Why we need an answer key</a></li>
+        <ul><li><a href="#run-this-first">Run this first</a></li>
+<li><a href="#why-we-need-an-answer-key">Why we need an answer key</a></li>
 <li><a href="#the-two-signal-files-tthtobb-tthtocc-matching-jets-to-truth">The two signal files (ttHTobb, ttHTocc): matching jets to truth</a></li>
 <li><a href="#the-background-file-qcd-no-matching-needed">The background file (QCD): no matching needed</a></li>
 <li><a href="#turning-this-into-labels">Turning this into labels</a></li>
 <li><a href="#quick-recap">Quick recap</a></li>
-<li><a href="#full-code-for-this-lesson">Full code for this lesson</a></li>
         </ul></div><!--/div.accordion-body-->
     </div><!--/div.accordion-collapse-->
 
@@ -358,7 +358,7 @@
       </div>
       <hr></nav><main id="main-content" class="main-content"><div class="container lesson-content">
         <h1>Finding the Truth Labels</h1>
-        <p>Last updated on 2026-07-14 |
+        <p>Last updated on 2026-07-15 |
 
         <a href="https://github.com/cms-opendata-workshop/workbench-template-md/edit/main/episodes/04-finding-the-truth-labels.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 
@@ -412,7 +412,94 @@ examples.</li>
 </div>
 </div>
 </div>
-<section><h2 class="section-heading" id="why-we-need-an-answer-key">Why we need an answer key<a class="anchor" aria-label="anchor" href="#why-we-need-an-answer-key"></a></h2>
+<section><h2 class="section-heading" id="run-this-first">Run this first<a class="anchor" aria-label="anchor" href="#run-this-first"></a></h2>
+<hr class="half-width"><div class="codewrapper sourceCode" id="cb1">
+<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
+</h3>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" tabindex="-1" aria-label="code-block-1-1"></a><span class="kw">def</span> delta_phi(phi1, phi2):</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1" aria-label="code-block-1-2"></a>    dphi <span class="op">=</span> phi1 <span class="op">-</span> phi2</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1" aria-label="code-block-1-3"></a>    <span class="cf">return</span> (dphi <span class="op">+</span> np.pi) <span class="op">%</span> (<span class="dv">2</span><span class="op">*</span>np.pi) <span class="op">-</span> np.pi</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1" aria-label="code-block-1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1" aria-label="code-block-1-5"></a><span class="kw">def</span> extract_features(filepath, label, is_signal<span class="op">=</span><span class="va">True</span>, max_events<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1" aria-label="code-block-1-6"></a>    tree <span class="op">=</span> uproot.<span class="bu">open</span>(filepath)[<span class="st">"Events"</span>]</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1" aria-label="code-block-1-7"></a>    </span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1" aria-label="code-block-1-8"></a>    <span class="co"># Load required branches</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1" aria-label="code-block-1-9"></a>    branches <span class="op">=</span> FEATURE_NAMES.copy()</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1" aria-label="code-block-1-10"></a>    <span class="cf">if</span> is_signal:</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1" aria-label="code-block-1-11"></a>        branches <span class="op">+=</span> [</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1" aria-label="code-block-1-12"></a>            <span class="st">"GenPart_pdgId"</span>, <span class="st">"GenPart_pt"</span>, <span class="st">"GenPart_eta"</span>, </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1" aria-label="code-block-1-13"></a>            <span class="st">"GenPart_phi"</span>, <span class="st">"GenPart_mass"</span>, <span class="st">"GenPart_genPartIdxMother"</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1" aria-label="code-block-1-14"></a>        ]</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1" aria-label="code-block-1-15"></a>    </span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1" aria-label="code-block-1-16"></a>    events <span class="op">=</span> tree.arrays(branches, entry_stop<span class="op">=</span>max_events)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1" aria-label="code-block-1-17"></a>    </span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1" aria-label="code-block-1-18"></a>    <span class="cf">if</span> is_signal:</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1" aria-label="code-block-1-19"></a>        <span class="co"># Determine target quark based on label (0: b-quark=5, 1: c-quark=4)</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1" aria-label="code-block-1-20"></a>        target_pdg <span class="op">=</span> <span class="dv">5</span> <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">4</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1" aria-label="code-block-1-21"></a>        </span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1" aria-label="code-block-1-22"></a>        mother_idx <span class="op">=</span> events.GenPart_genPartIdxMother</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1" aria-label="code-block-1-23"></a>        valid <span class="op">=</span> mother_idx <span class="op">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1" aria-label="code-block-1-24"></a>        mother_pdg <span class="op">=</span> ak.where(valid, events.GenPart_pdgId[mother_idx], <span class="op">-</span><span class="dv">999</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1" aria-label="code-block-1-25"></a>        </span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1" aria-label="code-block-1-26"></a>        is_higgs_dau <span class="op">=</span> (<span class="bu">abs</span>(events.GenPart_pdgId) <span class="op">==</span> target_pdg) <span class="op">&amp;</span> (mother_pdg <span class="op">==</span> <span class="dv">25</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1" aria-label="code-block-1-27"></a>        mask <span class="op">=</span> ak.num(events.GenPart_pt[is_higgs_dau]) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1" aria-label="code-block-1-28"></a>        events <span class="op">=</span> events[mask]</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1" aria-label="code-block-1-29"></a>        is_higgs_dau <span class="op">=</span> is_higgs_dau[mask]</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1" aria-label="code-block-1-30"></a>        </span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1" aria-label="code-block-1-31"></a>        <span class="co"># Build 4-vectors</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1" aria-label="code-block-1-32"></a>        jets <span class="op">=</span> ak.<span class="bu">zip</span>({</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1" aria-label="code-block-1-33"></a>            <span class="st">"pt"</span>: events.Jet_pt, <span class="st">"eta"</span>: events.Jet_eta,</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1" aria-label="code-block-1-34"></a>            <span class="st">"phi"</span>: events.Jet_phi, <span class="st">"mass"</span>: events.Jet_mass</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1" aria-label="code-block-1-35"></a>        }, with_name<span class="op">=</span><span class="st">"Momentum4D"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1" aria-label="code-block-1-36"></a>        </span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1" aria-label="code-block-1-37"></a>        dau <span class="op">=</span> ak.<span class="bu">zip</span>({</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1" aria-label="code-block-1-38"></a>            <span class="st">"pt"</span>: events.GenPart_pt[is_higgs_dau], <span class="st">"eta"</span>: events.GenPart_eta[is_higgs_dau],</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1" aria-label="code-block-1-39"></a>            <span class="st">"phi"</span>: events.GenPart_phi[is_higgs_dau], <span class="st">"mass"</span>: events.GenPart_mass[is_higgs_dau]</span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1" aria-label="code-block-1-40"></a>        }, with_name<span class="op">=</span><span class="st">"Momentum4D"</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1" aria-label="code-block-1-41"></a>        </span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1" aria-label="code-block-1-42"></a>        d1, d2 <span class="op">=</span> dau[:, <span class="dv">0</span>], dau[:, <span class="dv">1</span>]</span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1" aria-label="code-block-1-43"></a>        </span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1" aria-label="code-block-1-44"></a>        <span class="co"># Match using dR &lt; 0.4</span></span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1" aria-label="code-block-1-45"></a>        dr1 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d1.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d1.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1" aria-label="code-block-1-46"></a>        dr2 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d2.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d2.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1" aria-label="code-block-1-47"></a>        matched <span class="op">=</span> (dr1 <span class="op">&lt;</span> <span class="fl">0.4</span>) <span class="op">|</span> (dr2 <span class="op">&lt;</span> <span class="fl">0.4</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1" aria-label="code-block-1-48"></a>        </span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1" aria-label="code-block-1-49"></a>        <span class="co"># Extract features for matched jets</span></span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1" aria-label="code-block-1-50"></a>        matched_events <span class="op">=</span> events[matched]</span>
+<span id="cb1-51"><a href="#cb1-51" tabindex="-1" aria-label="code-block-1-51"></a>        </span>
+<span id="cb1-52"><a href="#cb1-52" tabindex="-1" aria-label="code-block-1-52"></a>        <span class="co"># Keep exactly 2 matched jets</span></span>
+<span id="cb1-53"><a href="#cb1-53" tabindex="-1" aria-label="code-block-1-53"></a>        mask_2jets <span class="op">=</span> ak.num(matched_events.Jet_pt) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb1-54"><a href="#cb1-54" tabindex="-1" aria-label="code-block-1-54"></a>        final_events <span class="op">=</span> matched_events[mask_2jets]</span>
+<span id="cb1-55"><a href="#cb1-55" tabindex="-1" aria-label="code-block-1-55"></a>        </span>
+<span id="cb1-56"><a href="#cb1-56" tabindex="-1" aria-label="code-block-1-56"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-57"><a href="#cb1-57" tabindex="-1" aria-label="code-block-1-57"></a>        <span class="co"># For QCD, require at least 2 jets and take the top 2 leading jets</span></span>
+<span id="cb1-58"><a href="#cb1-58" tabindex="-1" aria-label="code-block-1-58"></a>        mask_2jets <span class="op">=</span> ak.num(events.Jet_pt) <span class="op">&gt;=</span> <span class="dv">2</span></span>
+<span id="cb1-59"><a href="#cb1-59" tabindex="-1" aria-label="code-block-1-59"></a>        events <span class="op">=</span> events[mask_2jets]</span>
+<span id="cb1-60"><a href="#cb1-60" tabindex="-1" aria-label="code-block-1-60"></a>        <span class="co"># Slice to keep only the first 2 jets</span></span>
+<span id="cb1-61"><a href="#cb1-61" tabindex="-1" aria-label="code-block-1-61"></a>        final_events <span class="op">=</span> events[:, :<span class="dv">2</span>]</span>
+<span id="cb1-62"><a href="#cb1-62" tabindex="-1" aria-label="code-block-1-62"></a></span>
+<span id="cb1-63"><a href="#cb1-63" tabindex="-1" aria-label="code-block-1-63"></a>    <span class="co"># Stack features into a NumPy array of shape (N_events, 2_jets, N_features)</span></span>
+<span id="cb1-64"><a href="#cb1-64" tabindex="-1" aria-label="code-block-1-64"></a>    feature_list <span class="op">=</span> []</span>
+<span id="cb1-65"><a href="#cb1-65" tabindex="-1" aria-label="code-block-1-65"></a>    <span class="cf">for</span> feat <span class="kw">in</span> FEATURE_NAMES:</span>
+<span id="cb1-66"><a href="#cb1-66" tabindex="-1" aria-label="code-block-1-66"></a>        <span class="co"># Fill missing values with 0 (e.g., puId might have NaNs depending on pt)</span></span>
+<span id="cb1-67"><a href="#cb1-67" tabindex="-1" aria-label="code-block-1-67"></a>        arr <span class="op">=</span> ak.fill_none(final_events[feat], <span class="dv">0</span>)</span>
+<span id="cb1-68"><a href="#cb1-68" tabindex="-1" aria-label="code-block-1-68"></a>        feature_list.append(ak.to_numpy(arr))</span>
+<span id="cb1-69"><a href="#cb1-69" tabindex="-1" aria-label="code-block-1-69"></a>        </span>
+<span id="cb1-70"><a href="#cb1-70" tabindex="-1" aria-label="code-block-1-70"></a>    X <span class="op">=</span> np.stack(feature_list, axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-71"><a href="#cb1-71" tabindex="-1" aria-label="code-block-1-71"></a>    y <span class="op">=</span> np.full(X.shape[<span class="dv">0</span>], label)</span>
+<span id="cb1-72"><a href="#cb1-72" tabindex="-1" aria-label="code-block-1-72"></a>    </span>
+<span id="cb1-73"><a href="#cb1-73" tabindex="-1" aria-label="code-block-1-73"></a>    <span class="bu">print</span>(<span class="ss">f"Loaded label </span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>X<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> events"</span>)</span>
+<span id="cb1-74"><a href="#cb1-74" tabindex="-1" aria-label="code-block-1-74"></a>    <span class="cf">return</span> X, y</span></code></pre>
+</div>
+<hr><p><em>Run the block above first, then read on to see what each part
+does.</em></p>
+<p>This defines <code>extract_features()</code>, which this episode
+builds piece by piece below - a single function that takes a file path,
+a label, and whether the sample is signal or background, and returns the
+finished <code>(X, y)</code> arrays. It isn’t called yet - that happens
+once per file in <a href="05-preparing-the-data.html">Preparing the
+Data</a>.</p>
+</section><section><h2 class="section-heading" id="why-we-need-an-answer-key">Why we need an answer key<a class="anchor" aria-label="anchor" href="#why-we-need-an-answer-key"></a></h2>
 <hr class="half-width"><p>To train a model with examples, we need to already know the right
 answer for each one - otherwise there’s nothing to learn from. This is
 called <strong>supervised learning</strong>: a known answer supervises
@@ -427,11 +514,18 @@ extra columns starting with <code>GenPart_*</code> (“Generator-level
 Particle”). We only use these truth columns to <em>build our training
 labels</em> - the model itself never sees them.</p>
 </section><section><h2 class="section-heading" id="the-two-signal-files-tthtobb-tthtocc-matching-jets-to-truth">The two signal files (ttHTobb, ttHTocc): matching jets to truth<a class="anchor" aria-label="anchor" href="#the-two-signal-files-tthtobb-tthtocc-matching-jets-to-truth"></a></h2>
-<hr class="half-width"><p>For the signal samples, we need to figure out: <em>of all the jets in
+<hr class="half-width"><p>In plain words, before any code: jets are matched to generator-level
+truth quarks by angular distance (ΔR), and only jets that survive that
+match get used to build a training label - anything that doesn’t match
+close enough to a truth quark is thrown away.</p>
+<figure><img src="../fig/jet-truth-matching.svg" alt="Truth quarks (filled dots) are matched to nearby reconstructed jets (green triangles) within a ΔR window; jets outside that window (grey triangles) are unmatched and excluded from training." class="figure mx-auto d-block"><div class="figcaption">Truth quarks (filled dots) are matched to nearby
+reconstructed jets (green triangles) within a ΔR window; jets outside
+that window (grey triangles) are unmatched and excluded from
+training.</div>
+</figure><p>For the signal samples, we need to figure out: <em>of all the jets in
 this event, which ones actually came from the Higgs boson’s b-quarks (or
 c-quarks)?</em> This is a two-step process, handled inside the
-<code>extract_features()</code> function you’ll build in this episode’s
-code below.</p>
+<code>extract_features()</code> function you already ran above.</p>
 <div class="section level3">
 <h3 id="step-1---find-the-higgs-bosons-daughter-quarks">Step 1 - Find the Higgs boson’s daughter quarks<a class="anchor" aria-label="anchor" href="#step-1---find-the-higgs-bosons-daughter-quarks"></a></h3>
 <p>Every particle in <code>GenPart_*</code> has: -
@@ -444,19 +538,19 @@ particle is, using the standard <strong>PDG ID</strong> scheme:
 list is this particle’s “parent.”</p>
 <p>So “find the Higgs boson’s daughter quarks” becomes: <em>find
 particles whose ID is ±5 (or ±4) and whose parent’s ID is 25.</em></p>
-<div class="codewrapper sourceCode" id="cb1">
-<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
-</h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" tabindex="-1" aria-label="code-block-1-1"></a>target_pdg <span class="op">=</span> <span class="dv">5</span> <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">4</span>          <span class="co"># 5 = bottom quark, 4 = charm quark</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1" aria-label="code-block-1-2"></a>mother_pdg <span class="op">=</span> ak.where(valid, events.GenPart_pdgId[mother_idx], <span class="op">-</span><span class="dv">999</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1" aria-label="code-block-1-3"></a>is_higgs_dau <span class="op">=</span> (<span class="bu">abs</span>(events.GenPart_pdgId) <span class="op">==</span> target_pdg) <span class="op">&amp;</span> (mother_pdg <span class="op">==</span> <span class="dv">25</span>)</span></code></pre>
-</div>
-<p>A Higgs decaying to two quarks should have exactly two of these, so
-we throw away any event where that isn’t true:</p>
 <div class="codewrapper sourceCode" id="cb2">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" tabindex="-1" aria-label="code-block-2-1"></a>mask <span class="op">=</span> ak.num(events.GenPart_pt[is_higgs_dau]) <span class="op">==</span> <span class="dv">2</span></span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" tabindex="-1" aria-label="code-block-2-1"></a>target_pdg <span class="op">=</span> <span class="dv">5</span> <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">4</span>          <span class="co"># 5 = bottom quark, 4 = charm quark</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1" aria-label="code-block-2-2"></a>mother_pdg <span class="op">=</span> ak.where(valid, events.GenPart_pdgId[mother_idx], <span class="op">-</span><span class="dv">999</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1" aria-label="code-block-2-3"></a>is_higgs_dau <span class="op">=</span> (<span class="bu">abs</span>(events.GenPart_pdgId) <span class="op">==</span> target_pdg) <span class="op">&amp;</span> (mother_pdg <span class="op">==</span> <span class="dv">25</span>)</span></code></pre>
+</div>
+<p>A Higgs decaying to two quarks should have exactly two of these, so
+we throw away any event where that isn’t true:</p>
+<div class="codewrapper sourceCode" id="cb3">
+<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
+</h3>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" tabindex="-1" aria-label="code-block-3-1"></a>mask <span class="op">=</span> ak.num(events.GenPart_pt[is_higgs_dau]) <span class="op">==</span> <span class="dv">2</span></span></code></pre>
 </div>
 <p><code>ak.num(...)</code> counts how many entries survive the filter
 per event (since every event can have a different number of
@@ -477,11 +571,11 @@ a truth quark using <strong>ΔR</strong> (“delta R”):</p>
 use a threshold of <strong>ΔR &lt; 0.4</strong>, matching the cone size
 CMS’s jet-clustering algorithm actually used to build the jet in the
 first place:</p>
-<div class="codewrapper sourceCode" id="cb4">
+<div class="codewrapper sourceCode" id="cb5">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" tabindex="-1" aria-label="code-block-4-1"></a>dr1 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d1.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d1.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1" aria-label="code-block-4-2"></a>matched <span class="op">=</span> (dr1 <span class="op">&lt;</span> <span class="fl">0.4</span>) <span class="op">|</span> (dr2 <span class="op">&lt;</span> <span class="fl">0.4</span>)</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" tabindex="-1" aria-label="code-block-5-1"></a>dr1 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d1.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d1.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1" aria-label="code-block-5-2"></a>matched <span class="op">=</span> (dr1 <span class="op">&lt;</span> <span class="fl">0.4</span>) <span class="op">|</span> (dr2 <span class="op">&lt;</span> <span class="fl">0.4</span>)</span></code></pre>
 </div>
 <p><code>matched</code> is <code>True</code> for any jet within ΔR of
 0.4 of either Higgs daughter quark - this is what turns “here is a
@@ -496,23 +590,23 @@ almost 3.5 radians apart, when really they’re neighbors either side of
 the wraparound point. <code>delta_phi</code> fixes that by squeezing the
 difference back into <code>[-π, π]</code>, so it always reports the
 <em>shortest</em> way around the circle:</p>
-<div class="codewrapper sourceCode" id="cb5">
+<div class="codewrapper sourceCode" id="cb6">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" tabindex="-1" aria-label="code-block-5-1"></a><span class="kw">def</span> delta_phi(phi1, phi2):</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1" aria-label="code-block-5-2"></a>    dphi <span class="op">=</span> phi1 <span class="op">-</span> phi2</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1" aria-label="code-block-5-3"></a>    <span class="cf">return</span> (dphi <span class="op">+</span> np.pi) <span class="op">%</span> (<span class="dv">2</span><span class="op">*</span>np.pi) <span class="op">-</span> np.pi</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" tabindex="-1" aria-label="code-block-6-1"></a><span class="kw">def</span> delta_phi(phi1, phi2):</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1" aria-label="code-block-6-2"></a>    dphi <span class="op">=</span> phi1 <span class="op">-</span> phi2</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1" aria-label="code-block-6-3"></a>    <span class="cf">return</span> (dphi <span class="op">+</span> np.pi) <span class="op">%</span> (<span class="dv">2</span><span class="op">*</span>np.pi) <span class="op">-</span> np.pi</span></code></pre>
 </div>
 </div>
 <div class="section level3">
 <h3 id="keeping-exactly-two-matched-jets">Keeping exactly two matched jets<a class="anchor" aria-label="anchor" href="#keeping-exactly-two-matched-jets"></a></h3>
 <p>Finally, we only keep events with exactly two matched jets - one per
 Higgs daughter quark - since MiniParT always looks at a pair:</p>
-<div class="codewrapper sourceCode" id="cb6">
+<div class="codewrapper sourceCode" id="cb7">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" tabindex="-1" aria-label="code-block-6-1"></a>mask_2jets <span class="op">=</span> ak.num(matched_events.Jet_pt) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1" aria-label="code-block-6-2"></a>final_events <span class="op">=</span> matched_events[mask_2jets]</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" tabindex="-1" aria-label="code-block-7-1"></a>mask_2jets <span class="op">=</span> ak.num(matched_events.Jet_pt) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1" aria-label="code-block-7-2"></a>final_events <span class="op">=</span> matched_events[mask_2jets]</span></code></pre>
 </div>
 <p><code>final_events</code> now holds only clean signal events: exactly
 two jets, both confirmed matches to the Higgs boson’s daughter
@@ -522,12 +616,12 @@ quarks.</p>
 <hr class="half-width"><p>For the QCD background sample, there’s no Higgs boson to match to. So
 we take the simpler approach of grabbing the two highest-momentum
 (“leading”) jets in each event:</p>
-<div class="codewrapper sourceCode" id="cb7">
+<div class="codewrapper sourceCode" id="cb8">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" tabindex="-1" aria-label="code-block-7-1"></a>mask_2jets <span class="op">=</span> ak.num(events.Jet_pt) <span class="op">&gt;=</span> <span class="dv">2</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1" aria-label="code-block-7-2"></a>events <span class="op">=</span> events[mask_2jets]</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1" aria-label="code-block-7-3"></a>final_events <span class="op">=</span> events[:, :<span class="dv">2</span>]     <span class="co"># keep the first 2 jets</span></span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" tabindex="-1" aria-label="code-block-8-1"></a>mask_2jets <span class="op">=</span> ak.num(events.Jet_pt) <span class="op">&gt;=</span> <span class="dv">2</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1" aria-label="code-block-8-2"></a>events <span class="op">=</span> events[mask_2jets]</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1" aria-label="code-block-8-3"></a>final_events <span class="op">=</span> events[:, :<span class="dv">2</span>]     <span class="co"># keep the first 2 jets</span></span></code></pre>
 </div>
 </section><section><h2 class="section-heading" id="turning-this-into-labels">Turning this into labels<a class="anchor" aria-label="anchor" href="#turning-this-into-labels"></a></h2>
 <hr class="half-width"><p>Every surviving event becomes one training example: 2 jets × 10
@@ -543,11 +637,11 @@ features, with one label attached:</p>
 <li>
 <code>label = 2</code> → the jet pair is <strong>QCD</strong>
 background</li>
-</ul><div class="codewrapper sourceCode" id="cb8">
+</ul><div class="codewrapper sourceCode" id="cb9">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" tabindex="-1" aria-label="code-block-8-1"></a>X <span class="op">=</span> np.stack(feature_list, axis<span class="op">=-</span><span class="dv">1</span>)   <span class="co"># shape: (n_events, 2, 10)</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1" aria-label="code-block-8-2"></a>y <span class="op">=</span> np.full(X.shape[<span class="dv">0</span>], label)</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" tabindex="-1" aria-label="code-block-9-1"></a>X <span class="op">=</span> np.stack(feature_list, axis<span class="op">=-</span><span class="dv">1</span>)   <span class="co"># shape: (n_events, 2, 10)</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1" aria-label="code-block-9-2"></a>y <span class="op">=</span> np.full(X.shape[<span class="dv">0</span>], label)</span></code></pre>
 </div>
 </section><section><h2 class="section-heading" id="quick-recap">Quick recap<a class="anchor" aria-label="anchor" href="#quick-recap"></a></h2>
 <hr class="half-width"><ul><li>Truth-level (<code>GenPart_*</code>) columns exist only in
@@ -561,92 +655,7 @@ the sky” built from <code>eta</code> and <code>phi</code>.</li>
 Higgs decay to match to.</li>
 <li>Next: <a href="05-preparing-the-data.html">Preparing the Data</a> -
 preparing this data to actually feed into a neural network.</li>
-</ul></section><section><h2 class="section-heading" id="full-code-for-this-lesson">Full code for this lesson<a class="anchor" aria-label="anchor" href="#full-code-for-this-lesson"></a></h2>
-<hr class="half-width"><p>Copy this into your own Jupyter notebook cell(s), in order, as you
-go.</p>
-<p>This block assembles every step above into one reusable function,
-<code>extract_features()</code>, which takes a file path, a label, and
-whether the sample is signal or background, and returns the finished
-<code>(X, y)</code> arrays.</p>
-<div class="codewrapper sourceCode" id="cb9">
-<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
-</h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" tabindex="-1" aria-label="code-block-9-1"></a><span class="kw">def</span> delta_phi(phi1, phi2):</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1" aria-label="code-block-9-2"></a>    dphi <span class="op">=</span> phi1 <span class="op">-</span> phi2</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1" aria-label="code-block-9-3"></a>    <span class="cf">return</span> (dphi <span class="op">+</span> np.pi) <span class="op">%</span> (<span class="dv">2</span><span class="op">*</span>np.pi) <span class="op">-</span> np.pi</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1" aria-label="code-block-9-4"></a></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1" aria-label="code-block-9-5"></a><span class="kw">def</span> extract_features(filepath, label, is_signal<span class="op">=</span><span class="va">True</span>, max_events<span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1" aria-label="code-block-9-6"></a>    tree <span class="op">=</span> uproot.<span class="bu">open</span>(filepath)[<span class="st">"Events"</span>]</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1" aria-label="code-block-9-7"></a>    </span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1" aria-label="code-block-9-8"></a>    <span class="co"># Load required branches</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1" aria-label="code-block-9-9"></a>    branches <span class="op">=</span> FEATURE_NAMES.copy()</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1" aria-label="code-block-9-10"></a>    <span class="cf">if</span> is_signal:</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1" aria-label="code-block-9-11"></a>        branches <span class="op">+=</span> [</span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1" aria-label="code-block-9-12"></a>            <span class="st">"GenPart_pdgId"</span>, <span class="st">"GenPart_pt"</span>, <span class="st">"GenPart_eta"</span>, </span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1" aria-label="code-block-9-13"></a>            <span class="st">"GenPart_phi"</span>, <span class="st">"GenPart_mass"</span>, <span class="st">"GenPart_genPartIdxMother"</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1" aria-label="code-block-9-14"></a>        ]</span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1" aria-label="code-block-9-15"></a>    </span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1" aria-label="code-block-9-16"></a>    events <span class="op">=</span> tree.arrays(branches, entry_stop<span class="op">=</span>max_events)</span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1" aria-label="code-block-9-17"></a>    </span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1" aria-label="code-block-9-18"></a>    <span class="cf">if</span> is_signal:</span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1" aria-label="code-block-9-19"></a>        <span class="co"># Determine target quark based on label (0: b-quark=5, 1: c-quark=4)</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1" aria-label="code-block-9-20"></a>        target_pdg <span class="op">=</span> <span class="dv">5</span> <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">4</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1" aria-label="code-block-9-21"></a>        </span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1" aria-label="code-block-9-22"></a>        mother_idx <span class="op">=</span> events.GenPart_genPartIdxMother</span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1" aria-label="code-block-9-23"></a>        valid <span class="op">=</span> mother_idx <span class="op">&gt;=</span> <span class="dv">0</span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1" aria-label="code-block-9-24"></a>        mother_pdg <span class="op">=</span> ak.where(valid, events.GenPart_pdgId[mother_idx], <span class="op">-</span><span class="dv">999</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1" aria-label="code-block-9-25"></a>        </span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1" aria-label="code-block-9-26"></a>        is_higgs_dau <span class="op">=</span> (<span class="bu">abs</span>(events.GenPart_pdgId) <span class="op">==</span> target_pdg) <span class="op">&amp;</span> (mother_pdg <span class="op">==</span> <span class="dv">25</span>)</span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1" aria-label="code-block-9-27"></a>        mask <span class="op">=</span> ak.num(events.GenPart_pt[is_higgs_dau]) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1" aria-label="code-block-9-28"></a>        events <span class="op">=</span> events[mask]</span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1" aria-label="code-block-9-29"></a>        is_higgs_dau <span class="op">=</span> is_higgs_dau[mask]</span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1" aria-label="code-block-9-30"></a>        </span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1" aria-label="code-block-9-31"></a>        <span class="co"># Build 4-vectors</span></span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1" aria-label="code-block-9-32"></a>        jets <span class="op">=</span> ak.<span class="bu">zip</span>({</span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1" aria-label="code-block-9-33"></a>            <span class="st">"pt"</span>: events.Jet_pt, <span class="st">"eta"</span>: events.Jet_eta,</span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1" aria-label="code-block-9-34"></a>            <span class="st">"phi"</span>: events.Jet_phi, <span class="st">"mass"</span>: events.Jet_mass</span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1" aria-label="code-block-9-35"></a>        }, with_name<span class="op">=</span><span class="st">"Momentum4D"</span>)</span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1" aria-label="code-block-9-36"></a>        </span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1" aria-label="code-block-9-37"></a>        dau <span class="op">=</span> ak.<span class="bu">zip</span>({</span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1" aria-label="code-block-9-38"></a>            <span class="st">"pt"</span>: events.GenPart_pt[is_higgs_dau], <span class="st">"eta"</span>: events.GenPart_eta[is_higgs_dau],</span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1" aria-label="code-block-9-39"></a>            <span class="st">"phi"</span>: events.GenPart_phi[is_higgs_dau], <span class="st">"mass"</span>: events.GenPart_mass[is_higgs_dau]</span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1" aria-label="code-block-9-40"></a>        }, with_name<span class="op">=</span><span class="st">"Momentum4D"</span>)</span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1" aria-label="code-block-9-41"></a>        </span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1" aria-label="code-block-9-42"></a>        d1, d2 <span class="op">=</span> dau[:, <span class="dv">0</span>], dau[:, <span class="dv">1</span>]</span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1" aria-label="code-block-9-43"></a>        </span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1" aria-label="code-block-9-44"></a>        <span class="co"># Match using dR &lt; 0.4</span></span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1" aria-label="code-block-9-45"></a>        dr1 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d1.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d1.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1" aria-label="code-block-9-46"></a>        dr2 <span class="op">=</span> np.sqrt((jets.eta <span class="op">-</span> d2.eta[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> delta_phi(jets.phi, d2.phi[:, <span class="va">None</span>])<span class="op">**</span><span class="dv">2</span>)</span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1" aria-label="code-block-9-47"></a>        matched <span class="op">=</span> (dr1 <span class="op">&lt;</span> <span class="fl">0.4</span>) <span class="op">|</span> (dr2 <span class="op">&lt;</span> <span class="fl">0.4</span>)</span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1" aria-label="code-block-9-48"></a>        </span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1" aria-label="code-block-9-49"></a>        <span class="co"># Extract features for matched jets</span></span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1" aria-label="code-block-9-50"></a>        matched_events <span class="op">=</span> events[matched]</span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1" aria-label="code-block-9-51"></a>        </span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1" aria-label="code-block-9-52"></a>        <span class="co"># Keep exactly 2 matched jets</span></span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1" aria-label="code-block-9-53"></a>        mask_2jets <span class="op">=</span> ak.num(matched_events.Jet_pt) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1" aria-label="code-block-9-54"></a>        final_events <span class="op">=</span> matched_events[mask_2jets]</span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1" aria-label="code-block-9-55"></a>        </span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1" aria-label="code-block-9-56"></a>    <span class="cf">else</span>:</span>
-<span id="cb9-57"><a href="#cb9-57" tabindex="-1" aria-label="code-block-9-57"></a>        <span class="co"># For QCD, require at least 2 jets and take the top 2 leading jets</span></span>
-<span id="cb9-58"><a href="#cb9-58" tabindex="-1" aria-label="code-block-9-58"></a>        mask_2jets <span class="op">=</span> ak.num(events.Jet_pt) <span class="op">&gt;=</span> <span class="dv">2</span></span>
-<span id="cb9-59"><a href="#cb9-59" tabindex="-1" aria-label="code-block-9-59"></a>        events <span class="op">=</span> events[mask_2jets]</span>
-<span id="cb9-60"><a href="#cb9-60" tabindex="-1" aria-label="code-block-9-60"></a>        <span class="co"># Slice to keep only the first 2 jets</span></span>
-<span id="cb9-61"><a href="#cb9-61" tabindex="-1" aria-label="code-block-9-61"></a>        final_events <span class="op">=</span> events[:, :<span class="dv">2</span>]</span>
-<span id="cb9-62"><a href="#cb9-62" tabindex="-1" aria-label="code-block-9-62"></a></span>
-<span id="cb9-63"><a href="#cb9-63" tabindex="-1" aria-label="code-block-9-63"></a>    <span class="co"># Stack features into a NumPy array of shape (N_events, 2_jets, N_features)</span></span>
-<span id="cb9-64"><a href="#cb9-64" tabindex="-1" aria-label="code-block-9-64"></a>    feature_list <span class="op">=</span> []</span>
-<span id="cb9-65"><a href="#cb9-65" tabindex="-1" aria-label="code-block-9-65"></a>    <span class="cf">for</span> feat <span class="kw">in</span> FEATURE_NAMES:</span>
-<span id="cb9-66"><a href="#cb9-66" tabindex="-1" aria-label="code-block-9-66"></a>        <span class="co"># Fill missing values with 0 (e.g., puId might have NaNs depending on pt)</span></span>
-<span id="cb9-67"><a href="#cb9-67" tabindex="-1" aria-label="code-block-9-67"></a>        arr <span class="op">=</span> ak.fill_none(final_events[feat], <span class="dv">0</span>)</span>
-<span id="cb9-68"><a href="#cb9-68" tabindex="-1" aria-label="code-block-9-68"></a>        feature_list.append(ak.to_numpy(arr))</span>
-<span id="cb9-69"><a href="#cb9-69" tabindex="-1" aria-label="code-block-9-69"></a>        </span>
-<span id="cb9-70"><a href="#cb9-70" tabindex="-1" aria-label="code-block-9-70"></a>    X <span class="op">=</span> np.stack(feature_list, axis<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb9-71"><a href="#cb9-71" tabindex="-1" aria-label="code-block-9-71"></a>    y <span class="op">=</span> np.full(X.shape[<span class="dv">0</span>], label)</span>
-<span id="cb9-72"><a href="#cb9-72" tabindex="-1" aria-label="code-block-9-72"></a>    </span>
-<span id="cb9-73"><a href="#cb9-73" tabindex="-1" aria-label="code-block-9-73"></a>    <span class="bu">print</span>(<span class="ss">f"Loaded label </span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>X<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> events"</span>)</span>
-<span id="cb9-74"><a href="#cb9-74" tabindex="-1" aria-label="code-block-9-74"></a>    <span class="cf">return</span> X, y</span></code></pre>
-</div>
-<div id="question" class="callout challenge">
+</ul><div id="question" class="callout challenge">
 <div class="callout-square">
 <i class="callout-icon" data-feather="zap"></i>
 </div>
@@ -667,7 +676,7 @@ number of events, and why?</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p>A: Fewer events. A stricter (smaller) ΔR threshold means a jet has to
 point much closer to a truth quark’s direction to count as “matched.”
@@ -761,7 +770,7 @@ any links that you are not going to use.
   "url": "https://cms-opendata-workshop.github.io/workbench-template-md/instructor/04-finding-the-truth-labels.html",
   "identifier": "https://cms-opendata-workshop.github.io/workbench-template-md/instructor/04-finding-the-truth-labels.html",
   "dateCreated": "2026-07-08",
-  "dateModified": "2026-07-14",
+  "dateModified": "2026-07-15",
   "datePublished": "2026-07-15"
 }
 

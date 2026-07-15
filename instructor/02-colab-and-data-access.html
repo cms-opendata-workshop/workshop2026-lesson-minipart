@@ -228,7 +228,6 @@
         <ul><li><a href="#installing-the-packages-this-lesson-needs">Installing the packages this lesson needs</a></li>
 <li><a href="#reading-files-directly-from-cern">Reading files directly from CERN</a></li>
 <li><a href="#the-three-files-this-lesson-uses">The three files this lesson uses</a></li>
-<li><a href="#verifying-it-works">Verifying it works</a></li>
         </ul></div><!--/div.accordion-body-->
     </div><!--/div.accordion-collapse-->
 
@@ -356,7 +355,7 @@
       </div>
       <hr></nav><main id="main-content" class="main-content"><div class="container lesson-content">
         <h1>Working in Google Colab</h1>
-        <p>Last updated on 2026-07-14 |
+        <p>Last updated on 2026-07-15 |
 
         <a href="https://github.com/cms-opendata-workshop/workbench-template-md/edit/main/episodes/02-colab-and-data-access.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 
@@ -402,7 +401,12 @@ opened correctly.</li>
 </div>
 </div>
 <section><h2 class="section-heading" id="installing-the-packages-this-lesson-needs">Installing the packages this lesson needs<a class="anchor" aria-label="anchor" href="#installing-the-packages-this-lesson-needs"></a></h2>
-<hr class="half-width"><p>Colab comes with many common data science packages already installed,
+<hr class="half-width"><p>If you followed <a href="index.html#setup">Setup</a>, you likely already
+ran this install command once. Running it again here is a quick,
+harmless verification that everything is still in place before moving on
+- <code>pip</code> just confirms the packages are installed and does
+nothing if they already are.</p>
+<p>Colab comes with many common data science packages already installed,
 including <code>numpy</code>, <code>pandas</code>,
 <code>matplotlib</code>, <code>seaborn</code>,
 <code>scikit-learn</code>, and <code>torch</code>. It does not come with
@@ -433,6 +437,11 @@ the parts of the file it actually needs:</p>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1" aria-label="code-block-2-5"></a>tree <span class="op">=</span> uproot.<span class="bu">open</span>(tthtobb_path)[<span class="st">"Events"</span>]</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1" aria-label="code-block-2-6"></a><span class="bu">print</span>(<span class="st">"Number of events:"</span>, tree.num_entries)</span></code></pre>
 </div>
+<div class="codewrapper">
+<h3 class="code-label">OUTPUT<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
+</h3>
+<pre class="output" tabindex="0"><code>Number of events: 174000</code></pre>
+</div>
 <p>Nothing here gets downloaded to disk - <code>uproot</code> streams
 just the data it needs, which is why this works comfortably inside
 Colab’s storage limits.</p>
@@ -461,27 +470,15 @@ over 100,000 events:</p>
 <td>345,045</td>
 </tr></tbody></table><p>Save each file’s full streaming path as a variable now, so you can
 reuse it in later episodes:</p>
-<div class="codewrapper sourceCode" id="cb3">
-<h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
-</h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" tabindex="-1" aria-label="code-block-3-1"></a>TTHTOBB_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/260000/410F948C-6956-2D45-A170-DE6431E02281.root"</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1" aria-label="code-block-3-2"></a></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1" aria-label="code-block-3-3"></a>TTHTOCC_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/ttHTocc_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v1/50000/5C12D3AA-9311-B840-BB5D-4155D7FF66E4.root"</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1" aria-label="code-block-3-4"></a></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1" aria-label="code-block-3-5"></a>QCD_BCTOE_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/QCD_Pt_80to170_bcToE_TuneCP5_13TeV_pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/270000/A133135A-C83E-D245-846F-210C7AD2D29C.root"</span></span></code></pre>
-</div>
-</section><section><h2 class="section-heading" id="verifying-it-works">Verifying it works<a class="anchor" aria-label="anchor" href="#verifying-it-works"></a></h2>
-<hr class="half-width"><p>Before moving on, confirm a stream actually opens and contains the
-data this lesson expects:</p>
 <div class="codewrapper sourceCode" id="cb4">
 <h3 class="code-label">PYTHON<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
-<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" tabindex="-1" aria-label="code-block-4-1"></a>tree <span class="op">=</span> uproot.<span class="bu">open</span>(TTHTOBB_PATH)[<span class="st">"Events"</span>]</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1" aria-label="code-block-4-2"></a><span class="bu">print</span>(<span class="st">"Number of events:"</span>, tree.num_entries)</span></code></pre>
+<pre class="sourceCode python" tabindex="0"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" tabindex="-1" aria-label="code-block-4-1"></a>TTHTOBB_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/260000/410F948C-6956-2D45-A170-DE6431E02281.root"</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1" aria-label="code-block-4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1" aria-label="code-block-4-3"></a>TTHTOCC_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/ttHTocc_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v1/50000/5C12D3AA-9311-B840-BB5D-4155D7FF66E4.root"</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1" aria-label="code-block-4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1" aria-label="code-block-4-5"></a>QCD_BCTOE_PATH <span class="op">=</span> <span class="st">"root://eospublic.cern.ch//eos/opendata/cms/mc/RunIISummer20UL16NanoAODv9/QCD_Pt_80to170_bcToE_TuneCP5_13TeV_pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/270000/A133135A-C83E-D245-846F-210C7AD2D29C.root"</span></span></code></pre>
 </div>
-<p>This should print <code>174000</code>. If it prints a much smaller
-number, you have the wrong file - check it against the table above
-before using it.</p>
 <div id="keypoints1" class="callout keypoints">
 <div class="callout-square">
 <i class="callout-icon" data-feather="key"></i>
@@ -565,7 +562,7 @@ any links that you are not going to use.
   "url": "https://cms-opendata-workshop.github.io/workbench-template-md/instructor/02-colab-and-data-access.html",
   "identifier": "https://cms-opendata-workshop.github.io/workbench-template-md/instructor/02-colab-and-data-access.html",
   "dateCreated": "2026-07-08",
-  "dateModified": "2026-07-14",
+  "dateModified": "2026-07-15",
   "datePublished": "2026-07-15"
 }
 

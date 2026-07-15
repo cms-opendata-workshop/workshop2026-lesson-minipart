@@ -1,0 +1,20 @@
+<svg viewBox="0 0 680 460" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="80" width="560" height="280" rx="12" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="76" y="102" font-size="12" fill="#52514e">φ (phi)</text>
+<text x="500" y="345" font-size="12" fill="#52514e">η (eta)</text>
+<circle cx="230" cy="180" r="50" fill="none" stroke="#AFA9EC" stroke-width="1" stroke-dasharray="4 3"/>
+<circle cx="430" cy="260" r="50" fill="none" stroke="#AFA9EC" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="286" y="146" font-size="12" fill="#52514e">ΔR match window</text>
+<circle cx="230" cy="180" r="5" fill="#534AB7"/>
+<circle cx="430" cy="260" r="5" fill="#534AB7"/>
+<text x="200" y="205" text-anchor="middle" font-size="12" fill="#2C2C2A">truth b</text>
+<text x="460" y="285" text-anchor="middle" font-size="12" fill="#2C2C2A">truth b</text>
+<polygon points="238,168 253,198 223,198" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<polygon points="418,248 433,278 403,278" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<polygon points="140,308 155,338 125,338" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<polygon points="530,108 545,138 515,138" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<line x1="80" y1="410" x2="96" y2="410" stroke="#0F6E56" stroke-width="4"/>
+<text x="104" y="414" font-size="12" fill="#2C2C2A">Matched jet → gets the truth label</text>
+<line x1="80" y1="432" x2="96" y2="432" stroke="#5F5E5A" stroke-width="4"/>
+<text x="104" y="436" font-size="12" fill="#2C2C2A">Unmatched jet → excluded</text>
+</svg>

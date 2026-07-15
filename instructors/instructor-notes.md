@@ -2,21 +2,6 @@
 title: 'Instructor Notes'
 ---
 
-## Timing
-
-Across all 9 episodes, this lesson totals approximately 250 minutes
-(about 4 hours) of combined teaching and exercise time, based on the
-`teaching` and `exercises` values set in each episode's front matter. This
-comfortably fills a full workshop day, or can be split across two
-half-day sessions with a natural break after
-[Preparing the Data](../episodes/05-preparing-the-data.md), before
-learners start building the model itself.
-
-[Building MiniParT](../episodes/06-building-mini-part.md) is the longest
-and most conceptually dense episode (45 minutes). Consider giving it more
-buffer time than its listed duration suggests, especially for learners
-seeing self-attention for the first time.
-
 ## Likely points of confusion
 
 **Why Hbb vs. Hcc is harder than signal vs. background.** This is the

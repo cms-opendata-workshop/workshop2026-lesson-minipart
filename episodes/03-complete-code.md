@@ -5,18 +5,19 @@ exercises: 0
 ---
 
 :::::: questions
-- Where can you find the complete MiniParT pipeline as a single, unbroken block of code, without the surrounding explanation?
-- How do the pieces built up across the earlier episodes fit together end to end, from reading raw CMS files to plotting evaluation results?
+- What does the finished MiniParT pipeline look like, before we build it piece by piece?
+- Where can you find the complete pipeline as one unbroken block of code, without the surrounding explanation?
 ::::::
 
 :::::: objectives
-- Locate the complete MiniParT code pipeline in one place, for reference or for copying into a single notebook.
-- Confirm that the code here matches, piece for piece, the code introduced and explained across the earlier episodes.
+- See the whole MiniParT pipeline once, as a map for the episodes that follow.
+- Know where to find this code again later, for reference or for copying into a single notebook.
 ::::::
 
-This is the complete MiniParT pipeline in one place, assembled from the
-previous episodes in this lesson. Read those episodes first if you want
-the explanations, this page is a pure reference.
+Before building this piece by piece, here's the complete pipeline:
+reading raw CMS files, matching jets to their true Higgs-decay parents,
+training a transformer, and evaluating it. Don't worry about following
+every line. The episodes that follow unpack each part, one at a time.
 
 ## Step 1: Imports and feature list
 
@@ -304,7 +305,7 @@ Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%
 ```
 
 (Illustrative - your own run will vary, but lands in the same ~0.68→0.56
-loss, ~66%→72% accuracy range noted in [Training the Model](08-training-the-model.md).)
+loss, ~66%→72% accuracy range you'll see explained in [Training the Model](08-training-the-model.md).)
 
 ## Step 6: Test accuracy
 
@@ -515,6 +516,6 @@ direction for what the model learned about that class as a whole. See
 measures in the first place.
 
 :::::: keypoints
-- This episode is a pure reference: the complete MiniParT pipeline, from reading raw CMS files to plotting evaluation results, with minimal explanation beyond a few notes on what typical output looks like.
-- Every code block here matches the code introduced and explained in the earlier episodes of this lesson.
+- This episode previews the complete pipeline, from reading raw CMS files to plotting results, with minimal explanation beyond notes on typical output.
+- The episodes that follow build the same pipeline piece by piece, covering the physics and the code behind each part.
 ::::::

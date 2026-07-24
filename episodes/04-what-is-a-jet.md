@@ -78,8 +78,6 @@ The detector doesn't record "a bottom quark went this way." It records
 where dozens of individual particles landed and how much energy each one
 carried. Reconstruction software then groups those particles back
 together into a jet and computes useful summary numbers about it.
-**Those summary numbers are what our model actually sees** - not the raw
-particle hits.
 
 ## The 10 numbers we give the model
 
@@ -133,12 +131,14 @@ fraction gives it away, but the combination is a real clue.
 
 ## Why not just look at raw particles?
 
-The real, full-size Particle Transformer does exactly that - it looks at
-every individual particle inside a jet, not just 10 summary numbers.
+## Why not just look at raw particles?
+
+Those summary numbers, not the raw particle hits, are what our model
+actually sees. The real, full-size Particle Transformer looks at every
+individual particle inside a jet instead, not just 10 summary numbers.
 That's more powerful but much bigger and slower to train. MiniParT uses
-10 pre-computed summary numbers instead, which is why it can train on a
-laptop instead of a GPU cluster - the tradeoff is some detail gets
-thrown away.
+10 pre-computed summary numbers, which is why it can train on a laptop
+instead of a GPU cluster - the tradeoff is some detail gets thrown away.
 
 ## Where this data lives
 

@@ -283,9 +283,8 @@ Each row is "events that were *actually* this class," each column is
 "events the model *guessed* were this class." A perfect model would have
 large numbers only on the diagonal; large numbers off the diagonal show
 exactly which two classes get mixed up. A lot of events landing in the Hbb-row/Hcc-column square (or
-vice versa) means the model is mixing up the two Higgs decay types -
-given how physically similar bottom and charm jets are, that's exactly
-where you'd expect it to struggle most.
+vice versa) means the model is mixing up the two Higgs decay types,
+exactly where you'd expect it to struggle most.
 
 A typical run looks something like this (your own numbers will vary
 slightly):
@@ -387,24 +386,36 @@ Using only this table, compute the overall test accuracy. Then say which two cla
 
 A: Overall accuracy is the diagonal sum divided by the total. Diagonal: `4399 + 4092 + 9401 = 17892`. Total: `7205 + 7459 + 10000 = 24664`. That gives `17892 / 24664 ≈ 0.7254`, about 72.5%.
 
-The largest off-diagonal numbers are `2382` (true Hbb predicted as Hcc) and `2865` (true Hcc predicted as Hbb), far larger than the Hbb/Hcc-to-QCD confusions. The model's mistakes are concentrated almost entirely on telling Hbb and Hcc apart from each other, while separating both from QCD cleanly - exactly what [The Big Picture](01-introduction.md) predicted.
+The largest off-diagonal numbers are `2382` (true Hbb predicted as Hcc) and `2865` (true Hcc predicted as Hbb), far larger than the Hbb/Hcc-to-QCD confusions. The model's mistakes are concentrated almost entirely on telling Hbb and Hcc apart from each other, while separating both from QCD cleanly.
 
 :::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::::::
 
 ## Quick recap
+## Wrapping up
 - `model.eval()` + `torch.no_grad()` + the held-out test set gives you an honest accuracy score.
 - A confusion matrix shows *which* classes get mixed up with which - not just an overall score.
 - ROC curves and AUC summarize the tradeoff between catching real signal and letting background through, at every possible confidence threshold.
 - You can peek at the model's internal 64-number "fingerprint" for any event to sanity-check that it's genuinely separating the three classes internally, not just getting lucky on final guesses.
 
-That's the whole pipeline, start to finish - from raw CMS Open Data files
-to a trained, evaluated transformer. See [The Complete Code](03-complete-code.md)
-for every piece assembled in one place.
+That's the whole pipeline, start to finish: streaming real CMS Open Data
+files, matching jets to their true Higgs-decay parents, preparing and
+scaling the data, building a transformer, training it, and checking,
+honestly, on data it never saw, whether it learned the physics. The
+result matches what [The Big Picture](01-introduction.md) predicted at
+the start. Separating Higgs decays from QCD background is the easy
+part. Telling Hbb and Hcc apart from each other is the genuinely hard
+problem, for this model and for the full-size taggers used in real CMS
+analyses.
+
+If you want the whole thing again as one block of code, useful as a
+reference or a starting point to experiment on your own, revisit
+[The Complete Code](03-complete-code.md), which you saw as a preview
+back at the start of this lesson.
 
 :::::: keypoints
-- `model.eval()` plus `torch.no_grad()` plus the held-out test set gives an honest accuracy score, unlike training accuracy; a typical run reaches around 71% test accuracy.
-- A confusion matrix shows which classes get mixed up with which, not just an overall score; a typical run shows true Hcc events predicted as Hbb more often than correctly identified, while Hbb/Hcc-to-QCD confusion stays small.
-- ROC curves and AUC summarize the tradeoff between catching real signal and letting background through; a typical run shows QCD vs Rest (AUC ≈ 0.98) clearly ahead of Hbb vs Rest and Hcc vs Rest (both ≈ 0.83).
-- The model's internal 64-number "fingerprint," averaged across every test event in a class, can be compared with cosine similarity to sanity-check that it is genuinely separating the three classes internally - comparing single events instead is unreliable and can look backwards.
+- `model.eval()` + `torch.no_grad()` on the held-out test set gives an honest accuracy score, unlike training accuracy: typically around 71%.
+- A confusion matrix shows which classes get confused, not just overall accuracy: Hcc is predicted as Hbb more often than correctly identified, while Hbb/Hcc-to-QCD confusion stays small.
+- ROC curves and AUC summarize the signal-vs-background tradeoff: QCD vs Rest (AUC ≈ 0.98) clearly beats Hbb vs Rest and Hcc vs Rest (both ≈ 0.83).
+- The model's internal 64-number "fingerprint," averaged per class, can be checked with cosine similarity for genuine class separation; single-event comparisons are unreliable and can look backwards.
 ::::::

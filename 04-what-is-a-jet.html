@@ -247,6 +247,7 @@
 <li><a href="#the-detector-in-one-picture-with-words">The detector, in one picture (with words)</a></li>
 <li><a href="#the-10-numbers-we-give-the-model">The 10 numbers we give the model</a></li>
 <li><a href="#why-not-just-look-at-raw-particles">Why not just look at raw particles?</a></li>
+<li><a href="#why-not-just-look-at-raw-particles-1">Why not just look at raw particles?</a></li>
 <li><a href="#where-this-data-lives">Where this data lives</a></li>
 <li><a href="#quick-recap">Quick recap</a></li>
         </ul></div><!--/div.accordion-body-->
@@ -462,9 +463,8 @@ MiniParT actually uses.</p>
 <p>The detector doesn’t record “a bottom quark went this way.” It
 records where dozens of individual particles landed and how much energy
 each one carried. Reconstruction software then groups those particles
-back together into a jet and computes useful summary numbers about it.
-<strong>Those summary numbers are what our model actually sees</strong>
-- not the raw particle hits.</p>
+back together into a jet and computes useful summary numbers about
+it.</p>
 </section><section><h2 class="section-heading" id="the-10-numbers-we-give-the-model">The 10 numbers we give the model<a class="anchor" aria-label="anchor" href="#the-10-numbers-we-give-the-model"></a></h2>
 <hr class="half-width"><p>For every jet, we use these 10 features. You already defined this
 exact list as <code>FEATURE_NAMES</code> in the code above, and the
@@ -530,12 +530,14 @@ versus stray junk from one of those other, unrelated collisions. Higher
 is usually more “real.”</li>
 </ul></div>
 </section><section><h2 class="section-heading" id="why-not-just-look-at-raw-particles">Why not just look at raw particles?<a class="anchor" aria-label="anchor" href="#why-not-just-look-at-raw-particles"></a></h2>
-<hr class="half-width"><p>The real, full-size Particle Transformer does exactly that - it looks
-at every individual particle inside a jet, not just 10 summary numbers.
+<hr class="half-width"></section><section><h2 class="section-heading" id="why-not-just-look-at-raw-particles-1">Why not just look at raw particles?<a class="anchor" aria-label="anchor" href="#why-not-just-look-at-raw-particles-1"></a></h2>
+<hr class="half-width"><p>Those summary numbers, not the raw particle hits, are what our model
+actually sees. The real, full-size Particle Transformer looks at every
+individual particle inside a jet instead, not just 10 summary numbers.
 That’s more powerful but much bigger and slower to train. MiniParT uses
-10 pre-computed summary numbers instead, which is why it can train on a
-laptop instead of a GPU cluster - the tradeoff is some detail gets
-thrown away.</p>
+10 pre-computed summary numbers, which is why it can train on a laptop
+instead of a GPU cluster - the tradeoff is some detail gets thrown
+away.</p>
 </section><section><h2 class="section-heading" id="where-this-data-lives">Where this data lives<a class="anchor" aria-label="anchor" href="#where-this-data-lives"></a></h2>
 <hr class="half-width"><p>These numbers come straight out of <strong>NanoAOD</strong> files -
 CMS’s compact, public data format, stored as <a href="https://root.cern.ch/" class="external-link">ROOT</a> files. We read them with

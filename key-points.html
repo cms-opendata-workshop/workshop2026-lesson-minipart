@@ -429,11 +429,11 @@ much smaller count than expected means it’s the wrong file.</li>
 </ul></section><section id="03-complete-code"><h2 class="section-heading"><a href="03-complete-code.html">The Complete Code</a></h2>
 <hr class="half-width">
 <ul>
-<li>This episode is a pure reference: the complete MiniParT pipeline,
-from reading raw CMS files to plotting evaluation results, with minimal
-explanation beyond a few notes on what typical output looks like.</li>
-<li>Every code block here matches the code introduced and explained in
-the earlier episodes of this lesson.</li>
+<li>This episode previews the complete pipeline, from reading raw CMS
+files to plotting results, with minimal explanation beyond notes on
+typical output.</li>
+<li>The episodes that follow build the same pipeline piece by piece,
+covering the physics and the code behind each part.</li>
 </ul></section><section id="04-what-is-a-jet"><h2 class="section-heading"><a href="04-what-is-a-jet.html">What Is a Jet?</a></h2>
 <hr class="half-width">
 <ul>
@@ -504,22 +504,18 @@ since it is measured on data the model has already seen.</li>
 <hr class="half-width">
 <ul>
 <li>
-<code>model.eval()</code> plus <code>torch.no_grad()</code> plus the
+<code>model.eval()</code> + <code>torch.no_grad()</code> on the
 held-out test set gives an honest accuracy score, unlike training
-accuracy; a typical run reaches around 71% test accuracy.</li>
-<li>A confusion matrix shows which classes get mixed up with which, not
-just an overall score; a typical run shows true Hcc events predicted as
-Hbb more often than correctly identified, while Hbb/Hcc-to-QCD confusion
-stays small.</li>
-<li>ROC curves and AUC summarize the tradeoff between catching real
-signal and letting background through; a typical run shows QCD vs Rest
-(AUC ≈ 0.98) clearly ahead of Hbb vs Rest and Hcc vs Rest (both ≈
+accuracy: typically around 71%.</li>
+<li>A confusion matrix shows which classes get confused, not just
+overall accuracy: Hcc is predicted as Hbb more often than correctly
+identified, while Hbb/Hcc-to-QCD confusion stays small.</li>
+<li>ROC curves and AUC summarize the signal-vs-background tradeoff: QCD
+vs Rest (AUC ≈ 0.98) clearly beats Hbb vs Rest and Hcc vs Rest (both ≈
 0.83).</li>
-<li>The model’s internal 64-number “fingerprint,” averaged across every
-test event in a class, can be compared with cosine similarity to
-sanity-check that it is genuinely separating the three classes
-internally - comparing single events instead is unreliable and can look
-backwards.</li>
+<li>The model’s internal 64-number “fingerprint,” averaged per class,
+can be checked with cosine similarity for genuine class separation;
+single-event comparisons are unreliable and can look backwards.</li>
 </ul></section>
 </div>
     </main>

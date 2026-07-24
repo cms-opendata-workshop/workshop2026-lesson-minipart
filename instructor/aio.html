@@ -528,14 +528,19 @@ goal, only how much information the model has to work with.</p>
 </section><section><h2 class="section-heading" id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
 </h2>
 <hr class="half-width">
-<p>This lesson runs entirely in Google Colab, so the next episode covers
-setting up a Colab notebook and streaming CMS data directly from CERN.
-After that, the lesson builds MiniParT from scratch, step by step:</p>
+<p>This lesson runs entirely in Google Colab: the next episode sets that
+up and streams CMS data directly from CERN, and the one right after
+previews the complete MiniParT pipeline. It’s not something to copy into
+your notebook yet. From episode 4 on, the lesson builds MiniParT for
+real, step by step:</p>
 <ol style="list-style-type: decimal">
 <li>
 <a href="02-colab-and-data-access.html"><strong>Working in Google
 Colab</strong></a> - setting up Colab and streaming CMS Open Data
 directly, without downloading anything</li>
+<li>
+<a href="03-complete-code.html"><strong>The Complete
+Code</strong></a> - a preview of the finished pipeline</li>
 <li>
 <a href="04-what-is-a-jet.html"><strong>What Is a Jet?</strong></a>
 - the raw ingredients: 10 numbers per jet</li>
@@ -554,26 +559,22 @@ Model</strong></a> - how it actually learns</li>
 <li>
 <a href="09-evaluating-the-model.html"><strong>Evaluating the
 Model</strong></a> - did it work, and how do we know?</li>
-<li>
-<a href="03-complete-code.html"><strong>The Complete
-Code</strong></a> - every piece, assembled in one place</li>
 </ol>
-<p>Each of episodes 2 through 8 follows the same shape: <strong>it opens
-with the complete code for that episode, ready to run in one
-go</strong>, followed by a line inviting you to read on. Copy that
-opening block into a new cell, run it, and <em>then</em> read the prose
-that follows - that’s where the actual teaching happens, walking back
-through the code you just ran one small idea at a time: why a feature is
-included, what a line of PyTorch is really doing, why a step needs to
-happen before another one. Where a code block produces visible output (a
-print statement, a shape, a plot), a block right underneath it shows
-what you should see.</p>
-<p>These opening code blocks are cumulative: each one assumes every
-earlier episode’s opening block is already sitting in your Colab
-notebook, run in order. By the end of episode 7 your notebook
-<em>is</em> a trained MiniParT model, built up one episode at a time.
-Episode 9 then reprints the whole pipeline as a single reference, for
-whenever you want to see it all without the surrounding explanation.</p>
+<p>Episodes 4 through 9 follow the same shape: <strong>each opens with
+the complete code for that episode, ready to run in one go</strong>,
+followed by a line inviting you to read on. Copy that opening block into
+a new cell, run it, and <em>then</em> read the prose that follows -
+that’s where the actual teaching happens, walking back through the code
+you just ran one small idea at a time: why a feature is included, what a
+line of PyTorch is really doing, why a step needs to happen before
+another one. Where a code block produces visible output (a print
+statement, a shape, a plot), a block right underneath it shows what you
+should see.</p>
+<p>These opening code blocks are cumulative from episode 2 onward, and
+each assumes every earlier one is already in your notebook, run in
+order. Episode 3 is the exception. It’s a preview, not a building block,
+so skip pasting it in. By the end of episode 8, your notebook
+<em>is</em> a trained MiniParT model.</p>
 </section><section><h2 class="section-heading" id="how-well-judge-whether-it-worked">How we’ll judge whether it worked<a class="anchor" aria-label="anchor" href="#how-well-judge-whether-it-worked"></a>
 </h2>
 <hr class="half-width">
@@ -595,9 +596,9 @@ while the third class is separated from both almost perfectly. That
 exact pattern, two classes that are hard to tell apart plus a third that
 isn’t, is the situation this lesson’s Hbb/Hcc/QCD problem is actually
 in.</p>
-<p>Generated with the same sklearn/seaborn/matplotlib code shown later
-in this lesson, using illustrative data - not this lesson’s actual
-results.</p>
+<p>(Both this example and the one below are generated with the same
+sklearn/seaborn/matplotlib code shown later in this lesson, using
+illustrative data, not this lesson’s actual results.)</p>
 <p><strong>ROC curve and AUC</strong>, in brief: a curve tracing the
 tradeoff between catching more real signal and letting more background
 through, as the model’s confidence threshold slides from strict to
@@ -610,9 +611,6 @@ no background through. AUC boils that shape down to a single number:
 close to 1.0 means close to that corner, close to 0.5 means close to the
 diagonal, no better than a coin flip. The AUC near 1 shown here is
 illustrative, not this lesson’s actual number.</p>
-<p>Generated with the same sklearn/seaborn/matplotlib code shown later
-in this lesson, using illustrative data - not this lesson’s actual
-results.</p>
 <p><strong>Dot product / cosine similarity</strong>, in brief: the model
 represents every event internally as a vector of 64 numbers, and cosine
 similarity compares two such vectors by direction alone, ignoring length
@@ -639,7 +637,7 @@ model actually being asked to do?</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p>A: The model never sees a Higgs boson directly - it decays before
 reaching the detector. The model sees two jets and has to guess, from 10
@@ -864,11 +862,10 @@ any links that you are not going to use.
 <div class="inner">
 <h3 class="card-title">Questions</h3>
 <ul>
-<li>Where can you find the complete MiniParT pipeline as a single,
-unbroken block of code, without the surrounding explanation?</li>
-<li>How do the pieces built up across the earlier episodes fit together
-end to end, from reading raw CMS files to plotting evaluation
-results?</li>
+<li>What does the finished MiniParT pipeline look like, before we build
+it piece by piece?</li>
+<li>Where can you find the complete pipeline as one unbroken block of
+code, without the surrounding explanation?</li>
 </ul>
 </div>
 </div>
@@ -878,19 +875,21 @@ results?</li>
 <div class="inner bordered">
 <h3 class="card-title">Objectives</h3>
 <ul>
-<li>Locate the complete MiniParT code pipeline in one place, for
-reference or for copying into a single notebook.</li>
-<li>Confirm that the code here matches, piece for piece, the code
-introduced and explained across the earlier episodes.</li>
+<li>See the whole MiniParT pipeline once, as a map for the episodes that
+follow.</li>
+<li>Know where to find this code again later, for reference or for
+copying into a single notebook.</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
 </div>
-<p>This is the complete MiniParT pipeline in one place, assembled from
-the previous episodes in this lesson. Read those episodes first if you
-want the explanations, this page is a pure reference.</p>
+<p>Before building this piece by piece, here’s the complete pipeline:
+reading raw CMS files, matching jets to their true Higgs-decay parents,
+training a transformer, and evaluating it. Don’t worry about following
+every line. The episodes that follow unpack each part, one at a
+time.</p>
 <section><h2 class="section-heading" id="step-1-imports-and-feature-list">Step 1: Imports and feature list<a class="anchor" aria-label="anchor" href="#step-1-imports-and-feature-list"></a>
 </h2>
 <hr class="half-width">
@@ -1189,7 +1188,7 @@ Epoch 9/10 | Loss: 0.5734 | Train Acc: 71.58%
 Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%</code></pre>
 </div>
 <p>(Illustrative - your own run will vary, but lands in the same
-~0.68→0.56 loss, ~66%→72% accuracy range noted in <a href="08-training-the-model.html">Training the Model</a>.)</p>
+~0.68→0.56 loss, ~66%→72% accuracy range you’ll see explained in <a href="08-training-the-model.html">Training the Model</a>.)</p>
 </section><section><h2 class="section-heading" id="step-6-test-accuracy">Step 6: Test accuracy<a class="anchor" aria-label="anchor" href="#step-6-test-accuracy"></a>
 </h2>
 <hr class="half-width">
@@ -1409,11 +1408,11 @@ for what cosine similarity measures in the first place.</p>
 <div class="callout-inner">
 <div class="callout-content">
 <ul>
-<li>This episode is a pure reference: the complete MiniParT pipeline,
-from reading raw CMS files to plotting evaluation results, with minimal
-explanation beyond a few notes on what typical output looks like.</li>
-<li>Every code block here matches the code introduced and explained in
-the earlier episodes of this lesson.</li>
+<li>This episode previews the complete pipeline, from reading raw CMS
+files to plotting results, with minimal explanation beyond notes on
+typical output.</li>
+<li>The episodes that follow build the same pipeline piece by piece,
+covering the physics and the code behind each part.</li>
 </ul>
 </div>
 </div>
@@ -1532,9 +1531,8 @@ MiniParT actually uses.</p>
 <p>The detector doesn’t record “a bottom quark went this way.” It
 records where dozens of individual particles landed and how much energy
 each one carried. Reconstruction software then groups those particles
-back together into a jet and computes useful summary numbers about it.
-<strong>Those summary numbers are what our model actually sees</strong>
-- not the raw particle hits.</p>
+back together into a jet and computes useful summary numbers about
+it.</p>
 </section><section><h2 class="section-heading" id="the-10-numbers-we-give-the-model">The 10 numbers we give the model<a class="anchor" aria-label="anchor" href="#the-10-numbers-we-give-the-model"></a>
 </h2>
 <hr class="half-width">
@@ -1612,13 +1610,16 @@ is usually more “real.”</li>
 </div>
 </section><section><h2 class="section-heading" id="why-not-just-look-at-raw-particles">Why not just look at raw particles?<a class="anchor" aria-label="anchor" href="#why-not-just-look-at-raw-particles"></a>
 </h2>
+<hr class="half-width"></section><section><h2 class="section-heading" id="why-not-just-look-at-raw-particles-1">Why not just look at raw particles?<a class="anchor" aria-label="anchor" href="#why-not-just-look-at-raw-particles-1"></a>
+</h2>
 <hr class="half-width">
-<p>The real, full-size Particle Transformer does exactly that - it looks
-at every individual particle inside a jet, not just 10 summary numbers.
+<p>Those summary numbers, not the raw particle hits, are what our model
+actually sees. The real, full-size Particle Transformer looks at every
+individual particle inside a jet instead, not just 10 summary numbers.
 That’s more powerful but much bigger and slower to train. MiniParT uses
-10 pre-computed summary numbers instead, which is why it can train on a
-laptop instead of a GPU cluster - the tradeoff is some detail gets
-thrown away.</p>
+10 pre-computed summary numbers, which is why it can train on a laptop
+instead of a GPU cluster - the tradeoff is some detail gets thrown
+away.</p>
 </section><section><h2 class="section-heading" id="where-this-data-lives">Where this data lives<a class="anchor" aria-label="anchor" href="#where-this-data-lives"></a>
 </h2>
 <hr class="half-width">
@@ -2350,7 +2351,7 @@ instead. Would this cause an error? What would actually go wrong?</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p>A: No error - <code>fit_transform</code> is valid on its own, so the
 code would run. The problem is subtler: <code>fit_transform</code> would
@@ -3109,7 +3110,7 @@ expect to happen to training over the 10 epochs instead?</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
 <div class="accordion-body">
 <p>A: No error would be raised. Without
 <code>optimizer.zero_grad()</code>, the gradient information from
@@ -3519,9 +3520,8 @@ column is “events the model <em>guessed</em> were this class.” A perfect
 model would have large numbers only on the diagonal; large numbers off
 the diagonal show exactly which two classes get mixed up. A lot of
 events landing in the Hbb-row/Hcc-column square (or vice versa) means
-the model is mixing up the two Higgs decay types - given how physically
-similar bottom and charm jets are, that’s exactly where you’d expect it
-to struggle most.</p>
+the model is mixing up the two Higgs decay types, exactly where you’d
+expect it to struggle most.</p>
 <p>A typical run looks something like this (your own numbers will vary
 slightly):</p>
 <table class="table">
@@ -3694,12 +3694,14 @@ Diagonal: <code>4399 + 4092 + 9401 = 17892</code>. Total:
 predicted as Hcc) and <code>2865</code> (true Hcc predicted as Hbb), far
 larger than the Hbb/Hcc-to-QCD confusions. The model’s mistakes are
 concentrated almost entirely on telling Hbb and Hcc apart from each
-other, while separating both from QCD cleanly - exactly what <a href="01-introduction.html">The Big Picture</a> predicted.</p>
+other, while separating both from QCD cleanly.</p>
 </div>
 </div>
 </div>
 </div>
 </section><section><h2 class="section-heading" id="quick-recap">Quick recap<a class="anchor" aria-label="anchor" href="#quick-recap"></a>
+</h2>
+<hr class="half-width"></section><section><h2 class="section-heading" id="wrapping-up">Wrapping up<a class="anchor" aria-label="anchor" href="#wrapping-up"></a>
 </h2>
 <hr class="half-width">
 <ul>
@@ -3715,9 +3717,18 @@ threshold.</li>
 event to sanity-check that it’s genuinely separating the three classes
 internally, not just getting lucky on final guesses.</li>
 </ul>
-<p>That’s the whole pipeline, start to finish - from raw CMS Open Data
-files to a trained, evaluated transformer. See <a href="03-complete-code.html">The Complete Code</a> for every piece
-assembled in one place.</p>
+<p>That’s the whole pipeline, start to finish: streaming real CMS Open
+Data files, matching jets to their true Higgs-decay parents, preparing
+and scaling the data, building a transformer, training it, and checking,
+honestly, on data it never saw, whether it learned the physics. The
+result matches what <a href="01-introduction.html">The Big Picture</a>
+predicted at the start. Separating Higgs decays from QCD background is
+the easy part. Telling Hbb and Hcc apart from each other is the
+genuinely hard problem, for this model and for the full-size taggers
+used in real CMS analyses.</p>
+<p>If you want the whole thing again as one block of code, useful as a
+reference or a starting point to experiment on your own, revisit <a href="03-complete-code.html">The Complete Code</a>, which you saw as a
+preview back at the start of this lesson.</p>
 <div id="keypoints1" class="callout keypoints">
 <div class="callout-square">
 <i class="callout-icon" data-feather="key"></i>
@@ -3727,22 +3738,18 @@ assembled in one place.</p>
 <div class="callout-content">
 <ul>
 <li>
-<code>model.eval()</code> plus <code>torch.no_grad()</code> plus the
+<code>model.eval()</code> + <code>torch.no_grad()</code> on the
 held-out test set gives an honest accuracy score, unlike training
-accuracy; a typical run reaches around 71% test accuracy.</li>
-<li>A confusion matrix shows which classes get mixed up with which, not
-just an overall score; a typical run shows true Hcc events predicted as
-Hbb more often than correctly identified, while Hbb/Hcc-to-QCD confusion
-stays small.</li>
-<li>ROC curves and AUC summarize the tradeoff between catching real
-signal and letting background through; a typical run shows QCD vs Rest
-(AUC ≈ 0.98) clearly ahead of Hbb vs Rest and Hcc vs Rest (both ≈
+accuracy: typically around 71%.</li>
+<li>A confusion matrix shows which classes get confused, not just
+overall accuracy: Hcc is predicted as Hbb more often than correctly
+identified, while Hbb/Hcc-to-QCD confusion stays small.</li>
+<li>ROC curves and AUC summarize the signal-vs-background tradeoff: QCD
+vs Rest (AUC ≈ 0.98) clearly beats Hbb vs Rest and Hcc vs Rest (both ≈
 0.83).</li>
-<li>The model’s internal 64-number “fingerprint,” averaged across every
-test event in a class, can be compared with cosine similarity to
-sanity-check that it is genuinely separating the three classes
-internally - comparing single events instead is unreliable and can look
-backwards.</li>
+<li>The model’s internal 64-number “fingerprint,” averaged per class,
+can be checked with cosine similarity for genuine class separation;
+single-event comparisons are unreliable and can look backwards.</li>
 </ul>
 </div>
 </div>

@@ -170,7 +170,7 @@ Loaded label 2: 50000 events
 ```
 
 (Approximate - the exact counts depend on the files read, but land in
-this ballpark; see [Preparing the Data](05-preparing-the-data.md).)
+this ballpark; see [Preparing the Data](06-preparing-the-data.md).)
 
 ## Step 4: Building MiniParT
 
@@ -304,7 +304,7 @@ Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%
 ```
 
 (Illustrative - your own run will vary, but lands in the same ~0.68→0.56
-loss, ~66%→72% accuracy range noted in [Training the Model](07-training-the-model.md).)
+loss, ~66%→72% accuracy range noted in [Training the Model](08-training-the-model.md).)
 
 ## Step 6: Test accuracy
 
@@ -395,7 +395,7 @@ plt.show()
 A typical run's confusion matrix shows true Hcc events predicted as Hbb
 more often than correctly identified as Hcc, while QCD stays almost
 perfectly separated from both signal classes - see
-[Evaluating the Model](08-evaluating-the-model.md) for a worked example
+[Evaluating the Model](09-evaluating-the-model.md) for a worked example
 with real numbers, and [The Big Picture](01-introduction.md) for how to
 read a confusion matrix.
 

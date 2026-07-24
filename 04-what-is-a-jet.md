@@ -85,7 +85,7 @@ particle hits.
 
 For every jet, we use these 10 features. You already defined this exact
 list as `FEATURE_NAMES` in the code above, and the `extract_features()`
-function built in the [next episode](04-finding-the-truth-labels.md) reuses
+function built in the [next episode](05-finding-the-truth-labels.md) reuses
 it:
 
 ### Where the jet is and how big it is
@@ -175,7 +175,7 @@ confirms the 10 columns actually loaded match `FEATURE_NAMES`.
 - A jet is a spray of particles created when a quark flies out of a collision.
 - We describe each jet with 10 numbers: 4 about its size/direction (`pt`, `eta`, `phi`, `mass`), 4 about what it's made of (the energy fractions), and 2 about its structure (`nConstituents`, `puId`).
 - These numbers are read from public CMS NanoAOD files using `uproot`.
-- Next: [Finding the Truth Labels](04-finding-the-truth-labels.md) - how do we know the *right answer* for each jet during training?
+- Next: [Finding the Truth Labels](05-finding-the-truth-labels.md) - how do we know the *right answer* for each jet during training?
 
 ::::::::::::::::::::::::::::::::::::: challenge
 

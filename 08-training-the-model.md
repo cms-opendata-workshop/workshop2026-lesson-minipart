@@ -70,12 +70,12 @@ Epoch 10/10 | Loss: 0.5687 | Train Acc: 71.84%
 These exact numbers are illustrative - your own run will vary slightly -
 but they land in the same range as the roughly 0.68 → 0.56 loss and
 roughly 66% → 72% training accuracy trend used throughout this lesson,
-including in [Evaluating the Model](08-evaluating-the-model.md).
+including in [Evaluating the Model](09-evaluating-the-model.md).
 
 ---
 *Run the block above first, then read on to see what each part does.*
 
-The model from [Building MiniParT](06-building-mini-part.md) starts out
+The model from [Building MiniParT](07-building-mini-part.md) starts out
 knowing nothing - its weights are randomly initialized. Training is the
 repeated process of showing it examples, checking how wrong its guesses
 are, and nudging its weights to be a little less wrong next time - which
@@ -141,7 +141,7 @@ rather than stuck or diverging.
 For every batch of 256 jet pairs:
 
 1. **`model.train()`** - tells the model we're training, switching on
-   dropout (see [Building MiniParT](06-building-mini-part.md)).
+   dropout (see [Building MiniParT](07-building-mini-part.md)).
 2. **`optimizer.zero_grad()`** - clears leftover gradient information from
    the previous batch, so nudges don't incorrectly pile on top of each other.
 3. **`outputs = model(batch_x)`** - the forward pass: run this batch
@@ -201,7 +201,7 @@ A: No error would be raised. Without `optimizer.zero_grad()`, the gradient infor
 - `CrossEntropyLoss` grades how wrong the model's guesses are; `AdamW` decides how to adjust the model's weights in response.
 - Each batch: clear old gradients → forward pass → compute loss → backpropagate → update weights.
 - One full pass through all batches is an epoch; we repeat for several epochs so the model keeps improving.
-- Training accuracy is a useful sanity check, but not a fair test - see [Evaluating the Model](08-evaluating-the-model.md) for that.
+- Training accuracy is a useful sanity check, but not a fair test - see [Evaluating the Model](09-evaluating-the-model.md) for that.
 
 :::::: keypoints
 - `CrossEntropyLoss` grades how wrong the model's guesses are; `AdamW` decides how to adjust the model's weights in response.

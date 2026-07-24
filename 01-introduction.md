@@ -64,7 +64,7 @@ can capture.
 Instead of a person writing rules like "if energy fraction > 0.6 then
 it's probably a bottom quark," we show a computer program **thousands of
 examples where we already know the right answer** (because the data is
-simulated - see [Finding the Truth Labels](04-finding-the-truth-labels.md)),
+simulated - see [Finding the Truth Labels](05-finding-the-truth-labels.md)),
 and let it gradually adjust itself until it gets good at guessing
 correctly. That process is "training," and the program doing the
 adjusting is the "model."
@@ -97,13 +97,13 @@ setting up a Colab notebook and streaming CMS data directly from CERN.
 After that, the lesson builds MiniParT from scratch, step by step:
 
 1. [**Working in Google Colab**](02-colab-and-data-access.md) - setting up Colab and streaming CMS Open Data directly, without downloading anything
-2. [**What Is a Jet?**](03-what-is-a-jet.md) - the raw ingredients: 10 numbers per jet
-3. [**Finding the Truth Labels**](04-finding-the-truth-labels.md) - how we know the "right answer" for training
-4. [**Preparing the Data**](05-preparing-the-data.md) - getting the numbers ready for a neural network
-5. [**Building MiniParT**](06-building-mini-part.md) - the model itself, piece by piece
-6. [**Training the Model**](07-training-the-model.md) - how it actually learns
-7. [**Evaluating the Model**](08-evaluating-the-model.md) - did it work, and how do we know?
-8. [**The Complete Code**](09-complete-code.md) - every piece, assembled in one place
+2. [**What Is a Jet?**](04-what-is-a-jet.md) - the raw ingredients: 10 numbers per jet
+3. [**Finding the Truth Labels**](05-finding-the-truth-labels.md) - how we know the "right answer" for training
+4. [**Preparing the Data**](06-preparing-the-data.md) - getting the numbers ready for a neural network
+5. [**Building MiniParT**](07-building-mini-part.md) - the model itself, piece by piece
+6. [**Training the Model**](08-training-the-model.md) - how it actually learns
+7. [**Evaluating the Model**](09-evaluating-the-model.md) - did it work, and how do we know?
+8. [**The Complete Code**](03-complete-code.md) - every piece, assembled in one place
 
 Each of episodes 2 through 8 follows the same shape: **it opens with the
 complete code for that episode, ready to run in one go**, followed by a
@@ -124,7 +124,7 @@ without the surrounding explanation.
 
 ## How we'll judge whether it worked
 
-Later in this lesson, in [Evaluating the Model](08-evaluating-the-model.md),
+Later in this lesson, in [Evaluating the Model](09-evaluating-the-model.md),
 we check whether MiniParT actually learned something useful, using three
 tools covered there in full: a confusion matrix, ROC curves with AUC, and
 comparing the model's internal representations with cosine similarity.
@@ -168,7 +168,7 @@ this lesson, using illustrative data - not this lesson's actual results.
 event internally as a vector of 64 numbers, and cosine similarity
 compares two such vectors by direction alone, ignoring length - close to
 1 means pointing the same way, close to -1 means opposite, close to 0
-means unrelated. [Evaluating the Model](08-evaluating-the-model.md) uses
+means unrelated. [Evaluating the Model](09-evaluating-the-model.md) uses
 this to sanity-check what the model learned internally, independent of
 its final guess.
 

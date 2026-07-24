@@ -65,13 +65,13 @@ contact: 'cms-dpoa-coordinator@cern.ch' # FIXME
 episodes: 
 - 01-introduction.md
 - 02-colab-and-data-access.md
-- 03-what-is-a-jet.md
-- 04-finding-the-truth-labels.md
-- 05-preparing-the-data.md
-- 06-building-mini-part.md
-- 07-training-the-model.md
-- 08-evaluating-the-model.md
-- 09-complete-code.md
+- 03-complete-code.md
+- 04-what-is-a-jet.md
+- 05-finding-the-truth-labels.md
+- 06-preparing-the-data.md
+- 07-building-mini-part.md
+- 08-training-the-model.md
+- 09-evaluating-the-model.md
 
 # Information for Learners
 learners: 

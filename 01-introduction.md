@@ -92,20 +92,22 @@ goal, only how much information the model has to work with.
 
 ## Roadmap
 
-This lesson runs entirely in Google Colab, so the next episode covers
-setting up a Colab notebook and streaming CMS data directly from CERN.
-After that, the lesson builds MiniParT from scratch, step by step:
+This lesson runs entirely in Google Colab: the next episode sets that up
+and streams CMS data directly from CERN, and the one right after
+previews the complete MiniParT pipeline. It's not something to copy into
+your notebook yet. From episode 4 on, the lesson builds MiniParT for
+real, step by step:
 
 1. [**Working in Google Colab**](02-colab-and-data-access.md) - setting up Colab and streaming CMS Open Data directly, without downloading anything
-2. [**What Is a Jet?**](04-what-is-a-jet.md) - the raw ingredients: 10 numbers per jet
-3. [**Finding the Truth Labels**](05-finding-the-truth-labels.md) - how we know the "right answer" for training
-4. [**Preparing the Data**](06-preparing-the-data.md) - getting the numbers ready for a neural network
-5. [**Building MiniParT**](07-building-mini-part.md) - the model itself, piece by piece
-6. [**Training the Model**](08-training-the-model.md) - how it actually learns
-7. [**Evaluating the Model**](09-evaluating-the-model.md) - did it work, and how do we know?
-8. [**The Complete Code**](03-complete-code.md) - every piece, assembled in one place
+2. [**The Complete Code**](03-complete-code.md) - a preview of the finished pipeline
+3. [**What Is a Jet?**](04-what-is-a-jet.md) - the raw ingredients: 10 numbers per jet
+4. [**Finding the Truth Labels**](05-finding-the-truth-labels.md) - how we know the "right answer" for training
+5. [**Preparing the Data**](06-preparing-the-data.md) - getting the numbers ready for a neural network
+6. [**Building MiniParT**](07-building-mini-part.md) - the model itself, piece by piece
+7. [**Training the Model**](08-training-the-model.md) - how it actually learns
+8. [**Evaluating the Model**](09-evaluating-the-model.md) - did it work, and how do we know?
 
-Each of episodes 2 through 8 follows the same shape: **it opens with the
+Episodes 4 through 9 follow the same shape: **each opens with the
 complete code for that episode, ready to run in one go**, followed by a
 line inviting you to read on. Copy that opening block into a new cell,
 run it, and *then* read the prose that follows - that's where the actual
@@ -115,12 +117,11 @@ really doing, why a step needs to happen before another one. Where a
 code block produces visible output (a print statement, a shape, a plot),
 a block right underneath it shows what you should see.
 
-These opening code blocks are cumulative: each one assumes every earlier
-episode's opening block is already sitting in your Colab notebook, run in
-order. By the end of episode 7 your notebook *is* a trained MiniParT
-model, built up one episode at a time. Episode 9 then reprints the whole
-pipeline as a single reference, for whenever you want to see it all
-without the surrounding explanation.
+These opening code blocks are cumulative from episode 2 onward, and each
+assumes every earlier one is already in your notebook, run in order.
+Episode 3 is the exception. It's a preview, not a building block, so
+skip pasting it in. By the end of episode 8, your notebook *is* a
+trained MiniParT model.
 
 ## How we'll judge whether it worked
 
@@ -144,8 +145,9 @@ while the third class is separated from both almost perfectly. That
 exact pattern, two classes that are hard to tell apart plus a third that
 isn't, is the situation this lesson's Hbb/Hcc/QCD problem is actually in.
 
-Generated with the same sklearn/seaborn/matplotlib code shown later in
-this lesson, using illustrative data - not this lesson's actual results.
+(Both this example and the one below are generated with the same
+sklearn/seaborn/matplotlib code shown later in this lesson, using
+illustrative data, not this lesson's actual results.)
 
 **ROC curve and AUC**, in brief: a curve tracing the tradeoff between
 catching more real signal and letting more background through, as the
@@ -160,9 +162,6 @@ background through. AUC boils that shape down to a single number: close
 to 1.0 means close to that corner, close to 0.5 means close to the
 diagonal, no better than a coin flip. The AUC near 1 shown here is
 illustrative, not this lesson's actual number.
-
-Generated with the same sklearn/seaborn/matplotlib code shown later in
-this lesson, using illustrative data - not this lesson's actual results.
 
 **Dot product / cosine similarity**, in brief: the model represents every
 event internally as a vector of 64 numbers, and cosine similarity

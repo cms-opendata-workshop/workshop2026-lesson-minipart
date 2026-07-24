@@ -106,7 +106,7 @@ This defines `extract_features()`, which this episode builds piece by
 piece below - a single function that takes a file path, a label, and
 whether the sample is signal or background, and returns the finished
 `(X, y)` arrays. It isn't called yet - that happens once per file in
-[Preparing the Data](05-preparing-the-data.md).
+[Preparing the Data](06-preparing-the-data.md).
 
 ## Why we need an answer key
 
@@ -255,7 +255,7 @@ y = np.full(X.shape[0], label)
 - We find the Higgs boson's daughter quarks by PDG ID (5 = bottom, 4 = charm) and mother ID (25 = Higgs).
 - We match those truth quarks to real jets using ΔR - a "distance on the sky" built from `eta` and `phi`.
 - QCD background just uses the two leading jets, since there's no Higgs decay to match to.
-- Next: [Preparing the Data](05-preparing-the-data.md) - preparing this data to actually feed into a neural network.
+- Next: [Preparing the Data](06-preparing-the-data.md) - preparing this data to actually feed into a neural network.
 
 ::::::::::::::::::::::::::::::::::::: challenge
 

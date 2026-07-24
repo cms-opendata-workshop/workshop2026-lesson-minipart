@@ -229,7 +229,7 @@ class as a whole, which is why it's the version worth trusting.
 ---
 *Run the block above first, then read on to see what each part does.*
 
-Training accuracy (see [Training the Model](07-training-the-model.md)) can
+Training accuracy (see [Training the Model](08-training-the-model.md)) can
 lie to you - a model can look great on data it's already memorized and
 still be useless on new data. This episode is about actually finding out
 whether MiniParT learned something real, using only the 20% of data it
@@ -399,7 +399,7 @@ The largest off-diagonal numbers are `2382` (true Hbb predicted as Hcc) and `286
 - You can peek at the model's internal 64-number "fingerprint" for any event to sanity-check that it's genuinely separating the three classes internally, not just getting lucky on final guesses.
 
 That's the whole pipeline, start to finish - from raw CMS Open Data files
-to a trained, evaluated transformer. See [The Complete Code](09-complete-code.md)
+to a trained, evaluated transformer. See [The Complete Code](03-complete-code.md)
 for every piece assembled in one place.
 
 :::::: keypoints

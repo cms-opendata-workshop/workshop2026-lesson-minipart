@@ -63,12 +63,12 @@ Loaded label 2: 50000 events
 `TTHTOBB_PATH`, `TTHTOCC_PATH`, and `QCD_BCTOE_PATH` are the three
 streaming URLs saved in [Working in Google Colab](02-colab-and-data-access.md).
 `extract_features()` is the function you already ran in
-[Finding the Truth Labels](04-finding-the-truth-labels.md); it reads its
+[Finding the Truth Labels](05-finding-the-truth-labels.md); it reads its
 `filepath` argument the same way whether it's a local path or a `root://`
 streaming URL. The exact counts above will vary slightly depending on the
 files read, but stay in the same ballpark as the roughly 36,000 Hbb /
 37,000 Hcc / 50,000 QCD split reflected in the test-set totals used
-throughout [Evaluating the Model](08-evaluating-the-model.md).
+throughout [Evaluating the Model](09-evaluating-the-model.md).
 
 Once `extract_features()` has turned all three files into arrays of jet
 pairs and labels, three things still need to happen before we can hand
@@ -156,7 +156,7 @@ Two important details:
 
 PyTorch doesn't work directly on NumPy arrays - it uses its own array
 type, the **tensor**, which supports the bookkeeping needed for training
-(more in [Training the Model](07-training-the-model.md)).
+(more in [Training the Model](08-training-the-model.md)).
 
 ```python
 train_data = TensorDataset(
@@ -189,7 +189,7 @@ A: No error - `fit_transform` is valid on its own, so the code would run. The pr
 - Combine all three datasets, then split 80/20 into train/test, keeping the class proportions equal on both sides (`stratify`).
 - Scale every feature to the same "average 0, spread 1" footing, fitting the scaler only on training data.
 - Convert to PyTorch tensors and feed the model small shuffled batches at a time, not the whole dataset at once.
-- Next: [Building MiniParT](06-building-mini-part.md) - building the model itself.
+- Next: [Building MiniParT](07-building-mini-part.md) - building the model itself.
 
 :::::: keypoints
 - Combine all three datasets, then split 80/20 into train/test, keeping the class proportions equal on both sides with `stratify`.

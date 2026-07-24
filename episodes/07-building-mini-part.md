@@ -155,7 +155,7 @@ Any number would work equally well as a seed; what matters is picking
 *some* fixed value so the "random" numbers PyTorch and NumPy generate
 follow the same sequence every time the code runs, the same way
 `random_state=42` did for the train/test split in
-[Preparing the Data](05-preparing-the-data.md).
+[Preparing the Data](06-preparing-the-data.md).
 :::
 
 ## Piece 1 - The embedding layer: translating raw numbers into a richer language
@@ -300,7 +300,7 @@ A: After `self.embedding(x)`: `(32, 2, 64)` - embedding expands each jet's 10 nu
 - Self-attention lets the two jets exchange information about each other - using 4 parallel "attention heads," repeated over 2 stacked layers.
 - Mean pooling merges the two jets' descriptions into one summary per event.
 - A small MLP turns that summary into 3 final class scores.
-- Next: [Training the Model](07-training-the-model.md) - how the model actually learns from examples.
+- Next: [Training the Model](08-training-the-model.md) - how the model actually learns from examples.
 
 :::::: keypoints
 - The embedding layer translates each jet's 10 raw numbers into a richer 64-number internal description.

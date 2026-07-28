@@ -131,8 +131,6 @@ fraction gives it away, but the combination is a real clue.
 
 ## Why not just look at raw particles?
 
-## Why not just look at raw particles?
-
 Those summary numbers, not the raw particle hits, are what our model
 actually sees. The real, full-size Particle Transformer looks at every
 individual particle inside a jet instead, not just 10 summary numbers.
